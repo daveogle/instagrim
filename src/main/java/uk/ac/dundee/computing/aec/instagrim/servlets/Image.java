@@ -1,5 +1,7 @@
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
+import uk.ac.dundee.computing.aec.instagrim.exceptions.fileSizeException;
+import uk.ac.dundee.computing.aec.instagrim.exceptions.badTypeException;
 import com.datastax.driver.core.Cluster;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -32,137 +34,149 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
  * Servlet implementation class Image
  */
 @WebServlet(urlPatterns = {
-    "/Image",
-    "/Image/*",
-    "/Thumb/*",
-    "/Images",
-    "/Images/*"
+   "/Image",
+   "/Image/*",
+   "/Thumb/*",
+   "/Images",
+   "/Images/*"
 })
 @MultipartConfig
 
 public class Image extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
-    private Cluster cluster;
-    private HashMap CommandsMap = new HashMap();
-    
-    
+   private static final long serialVersionUID = 1L;
+   private Cluster cluster;
+   private HashMap CommandsMap = new HashMap();
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Image() {
-        super();
-        // TODO Auto-generated constructor stub
-        CommandsMap.put("Image", 1);
-        CommandsMap.put("Images", 2);
-        CommandsMap.put("Thumb", 3);
+   /**
+    * @see HttpServlet#HttpServlet()
+    */
+   public Image() {
+      super();
+      // TODO Auto-generated constructor stub
+      CommandsMap.put("Image", 1);
+      CommandsMap.put("Images", 2);
+      CommandsMap.put("Thumb", 3);
 
-    }
+   }
 
-    public void init(ServletConfig config) throws ServletException {
-        // TODO Auto-generated method stub
-        cluster = CassandraHosts.getCluster();
-    }
+   public void init(ServletConfig config) throws ServletException {
+      // TODO Auto-generated method stub
+      cluster = CassandraHosts.getCluster();
+   }
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-     * response)
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // TODO Auto-generated method stub
-        String args[] = Convertors.SplitRequestPath(request);
-        int command;
-        try {
-            command = (Integer) CommandsMap.get(args[1]);
-        } catch (Exception et) {
-            error("Bad Operator", response);
-            return;
-        }
-        switch (command) {
-            case 1:
-                DisplayImage(Convertors.DISPLAY_PROCESSED,args[2], response);
-                break;
-            case 2:
-                DisplayImageList(args[2], request, response);
-                break;
-            case 3:
-                DisplayImage(Convertors.DISPLAY_THUMB,args[2],  response);
-                break;
-            default:
-                error("Bad Operator", response);
-        }
-    }
+   /**
+    * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+    * response)
+    */
+   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+      // TODO Auto-generated method stub
+      String args[] = Convertors.SplitRequestPath(request);
+      int command;
+      try {
+         command = (Integer) CommandsMap.get(args[1]);
+      } catch (Exception et) {
+         error("Bad Type Exception","Bad Operator", response);
+         return;
+      }
+      switch (command) {
+         case 1:
+            DisplayImage(Convertors.DISPLAY_PROCESSED, args[2], response);
+            break;
+         case 2:
+            DisplayImageList(args[2], request, response);
+            break;
+         case 3:
+            DisplayImage(Convertors.DISPLAY_THUMB, args[2], response);
+            break;
+         default:
+            error("Bad Type Exception","Bad Operator", response);
+      }
+   }
 
-    private void DisplayImageList(String User, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        PicModel tm = new PicModel();
-        tm.setCluster(cluster);
-        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User);
-        RequestDispatcher rd = request.getRequestDispatcher("/UsersPics.jsp");
-        request.setAttribute("Pics", lsPics);
-        rd.forward(request, response);
+   private void DisplayImageList(String User, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+      PicModel tm = new PicModel();
+      tm.setCluster(cluster);
+      java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User);
+      RequestDispatcher rd = request.getRequestDispatcher("/UsersPics.jsp");
+      request.setAttribute("Pics", lsPics);
+      rd.forward(request, response);
 
-    }
+   }
 
-    private void DisplayImage(int type,String Image, HttpServletResponse response) throws ServletException, IOException {
-        PicModel tm = new PicModel();
-        tm.setCluster(cluster);
-  
-        
-        Pic p = tm.getPic(type,java.util.UUID.fromString(Image));
-        
-        OutputStream out = response.getOutputStream();
+   private void DisplayImage(int type, String Image, HttpServletResponse response) throws ServletException, IOException {
+      PicModel tm = new PicModel();
+      tm.setCluster(cluster);
 
-        response.setContentType(p.getType());
-        response.setContentLength(p.getLength());
-        //out.write(Image);
-        InputStream is = new ByteArrayInputStream(p.getBytes());
-        BufferedInputStream input = new BufferedInputStream(is);
-        byte[] buffer = new byte[8192];
-        for (int length = 0; (length = input.read(buffer)) > 0;) {
-            out.write(buffer, 0, length);
-        }
-        out.close();
-    }
+      Pic p = tm.getPic(type, java.util.UUID.fromString(Image));
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        for (Part part : request.getParts()) {
+      OutputStream out = response.getOutputStream();
+
+      response.setContentType(p.getType());
+      response.setContentLength(p.getLength());
+      //out.write(Image);
+      InputStream is = new ByteArrayInputStream(p.getBytes());
+      BufferedInputStream input = new BufferedInputStream(is);
+      byte[] buffer = new byte[8192];
+      for (int length = 0; (length = input.read(buffer)) > 0;) {
+         out.write(buffer, 0, length);
+      }
+      out.close();
+   }
+
+   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, badTypeException, fileSizeException  {
+      try {
+         for (Part part : request.getParts()) {
             System.out.println("Part Name " + part.getName());
-
             String type = part.getContentType();
+            if (!type.startsWith("image")) {
+               throw new badTypeException();
+            }
+            if(part.getSize() > 1500000){
+               throw new fileSizeException();
+            }
             String filename = part.getSubmittedFileName();
-            
+
             InputStream is = request.getPart(part.getName()).getInputStream();
             int i = is.available();
-            HttpSession session=request.getSession();
-            LoggedIn lg= (LoggedIn)session.getAttribute("LoggedIn");
-            String username="majed";
-            if (lg.getlogedin()){
-                username=lg.getUsername();
+            HttpSession session = request.getSession();
+            LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+            String username = "majed";
+            if (lg.getlogedin()) {
+               username = lg.getUsername();
             }
             if (i > 0) {
-                byte[] b = new byte[i + 1];
-                is.read(b);
-                System.out.println("Length : " + b.length);
-                PicModel tm = new PicModel();
-                tm.setCluster(cluster);
-                tm.insertPic(b, type, filename, username);
-
-                is.close();
+               byte[] b = new byte[i + 1];
+               is.read(b);
+               System.out.println("Length : " + b.length);
+               PicModel tm = new PicModel();
+               tm.setCluster(cluster);
+               tm.insertPic(b, type, filename, username);
+               is.close();
             }
             RequestDispatcher rd = request.getRequestDispatcher("/upload.jsp");
-             rd.forward(request, response);
-        }
+            rd.forward(request, response);
+         }
+      } catch (badTypeException e) {
+         error("Bad Type Exception", "Error: you may only upload image files", response);
+      }
+      catch (fileSizeException fs)
+      {
+         error("File Size Exception", "Error: your file may be no larger than 1500kb in size", response);
+      }
+      finally
+      {
+         error("Unkown Exception", "Error: an unknown error has occured, good luck", response);
+      }
+   }
 
-    }
+   private void error(String err, String mess, HttpServletResponse response) throws ServletException, IOException {
 
-    private void error(String mess, HttpServletResponse response) throws ServletException, IOException {
-
-        PrintWriter out = null;
-        out = new PrintWriter(response.getOutputStream());
-        out.println("<h1>You have a na error in your input</h1>");
-        out.println("<h2>" + mess + "</h2>");
-        out.close();
-        return;
-    }
+      PrintWriter out = null;
+      out = new PrintWriter(response.getOutputStream());
+      out.println("<h1>" + err + "</h1>");
+      out.println("<h2>" + mess + "</h2>");
+      out.close();
+      return;
+   }
 }

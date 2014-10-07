@@ -9,7 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Instagrim</title>
+        <title>InstaGrim</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
     </head>
     <body>
@@ -18,21 +18,20 @@
         <h2>Your world in Black and White</h2>
         </header>
         <nav>
-            <ul>
-                
-                <li><a href="/Instagrim/Images/majed">Sample Images</a></li>
+            <ul>                
+                <li><a href="/Instagrim/Images/majed">Sample Images</a></li> <!--Why is this here!?-->
             </ul>
         </nav>
        
         <article>
-            <h3>Register as user</h3>
+            <h3>Register a new user</h3>
             <form method="POST"  action="Register">
                 <ul>
                     <li>User Name <input type="text" name="username"></li>
                     <li>Password <input type="password" name="password"></li>
                 </ul>
                 <br/>
-                <input type="submit" value="Regidter"> 
+                <input type="submit" value="Register"> 
             </form>
 
         </article>

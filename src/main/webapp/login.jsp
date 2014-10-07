@@ -9,7 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Instagrim</title>
+        <title>InstaGrim</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
 
     </head>
@@ -19,8 +19,7 @@
         <h2>Your world in Black and White</h2>
         </header>
         <nav>
-            <ul>
-                
+            <ul>               
                 <li><a href="/Instagrim/Images/majed">Sample Images</a></li>
             </ul>
         </nav>

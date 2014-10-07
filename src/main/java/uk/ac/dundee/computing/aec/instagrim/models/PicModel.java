@@ -36,7 +36,6 @@ import org.imgscalr.Scalr.Method;
 
 import uk.ac.dundee.computing.aec.instagrim.lib.*;
 import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
-//import uk.ac.dundee.computing.aec.stores.TweetStore;
 
 public class PicModel {
 
