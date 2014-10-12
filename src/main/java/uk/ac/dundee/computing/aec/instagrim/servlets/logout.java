@@ -6,7 +6,6 @@
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,16 +13,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
-import uk.ac.dundee.computing.aec.instagrim.models.User;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
+import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 
 /**
  *
  * @author Dave Ogle
  */
 @WebServlet(name = "logout", urlPatterns = {"/logout"})
-public class logout extends HttpServlet {
+public class Logout extends HttpServlet {
 
    /**
     * Handles the HTTP <code>GET</code> method.
@@ -36,12 +34,17 @@ public class logout extends HttpServlet {
    @Override
    protected void doGet(HttpServletRequest request, HttpServletResponse response)
            throws ServletException, IOException {
-    /*  HttpSession session = request.getSession();
+      HttpSession session = request.getSession();
       LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
       lg.setLogedout();
-      response.sendRedirect("index.jsp");
-
-      */
+      Message m = new Message();
+      m.setMessageTitle("Logged Out");
+      m.setMessage("You have been successfully logged out");
+      m.setPageRedirect("/Instagrim");
+      m.setPageRedirectName("Home");
+      request.setAttribute("message", m);
+      RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+      dispatcher.forward(request, response);
    }
 
    /**
@@ -55,6 +58,8 @@ public class logout extends HttpServlet {
    @Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response)
            throws ServletException, IOException {
+      RequestDispatcher rd = request.getRequestDispatcher("index.jsp");
+      rd.forward(request, response);
    }
 
    /**
