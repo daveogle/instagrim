@@ -6,13 +6,26 @@
 package uk.ac.dundee.computing.aec.instagrim.exceptions;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 
 /**
  *
  * @author Dave Ogle
  */
-@WebServlet(name = "badTypeException", urlPatterns = {"/badTypeException"})
 public class badTypeException extends ServletException {
-   public void badTypeException(){};
+
+   String errorType;
+   String errorMessage;
+
+   public void badTypeException() {
+      errorType = "Bad Type Exeception";
+      errorMessage = "Error: you may only upload image files";
+   }
+
+   public String getErrorMessage() {
+      return errorMessage;
+   }
+
+   public String getErrorType() {
+      return errorType;
+   }
 }

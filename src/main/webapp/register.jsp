@@ -9,23 +9,31 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="${pageContext.request.contextPath}/Scripts/alertBox.js" type="text/javascript"></script>
         <title>InstaGrim</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
     </head>
     <body>
         <header>
-        <h1>InstaGrim ! </h1>
-        <h2>Your world in Black and White</h2>
+            <h1>InstaGrim ! </h1>
+            <h2>Your world in Black and White</h2>
         </header>
         <nav>
             <ul>                
                 <li><a href="/Instagrim/Images/majed">Sample Images</a></li> <!--Why is this here!?-->
             </ul>
         </nav>
-       
+
         <article>
             <h3>Register a new user</h3>
-            <form method="POST"  action="Register">
+            <form name="register" onsubmit="return validateForm('register', 'username', 'password')" method="POST"  action="Register">
+                <% boolean a = false;
+                   if (request.getAttribute("exists") != null) {
+                      a = (boolean) request.getAttribute("exists");
+                   }
+                   if (a) {%>
+                <p style="color:red"><b>That name already taken, please choose another... </b></p> 
+                <%}%>
                 <ul>
                     <li>User Name <input type="text" name="username"></li>
                     <li>Password <input type="password" name="password"></li>

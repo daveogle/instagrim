@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package uk.ac.dundee.computing.aec.instagrin.filters;
+package uk.ac.dundee.computing.aec.instagrim.filters;
 
 import java.io.IOException;
 import java.io.PrintStream;
