@@ -11,6 +11,17 @@ and open the template in the editor.
 
 nav {
     text-align: left;
-    border: 2px;
+    margin-right: 10%;
+    background-color: bisque;
+    border: 30px;
     float: right;
+}
+
+.homeMenu
+{
+}
+
+footer
+{
+    margin-top: 30%;
 }

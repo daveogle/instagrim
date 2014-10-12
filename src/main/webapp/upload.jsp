@@ -29,14 +29,14 @@
                 <input type="file" name="upfile">
                 <br/>
                 <br/>
-                <input type="submit" value="Press"> to upload the file!
+                <input type="submit" value="Press"> <p>to upload the file!</p>
             </form>
         </article>
-    </body>
 
-    <footer>
-        <ul>
-            <li class="footer"><a href="/Instagrim">Home</a></li>
-        </ul>
-    </footer>
+        <footer>
+            <ul>
+                <li class="footer"><a href="/Instagrim">Home</a></li>
+            </ul>
+        </footer>
+    </body>
 </html>
