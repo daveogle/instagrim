@@ -1,8 +1,5 @@
 package uk.ac.dundee.computing.aec.instagrim.lib;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.datastax.driver.core.*;
 
 public final class Keyspaces {
@@ -30,6 +27,13 @@ public final class Keyspaces {
                     + " name  varchar,"
                     + " PRIMARY KEY (picid)"
                     + ")";
+            /*String Createcommentlist = "CREATE TABLE if not exists instagrim.commentlist (\n"
+                    + "picid uuid,\n"
+                    + "user varchar,\n"
+                    + "comment_added timestamp,\n"
+                    + "comment varchar,\n"
+                    + "PRIMARY KEY (user,comment_added)\n"
+                    + ") WITH CLUSTERING ORDER BY (comment_added desc);";*/
             String Createuserpiclist = "CREATE TABLE if not exists instagrim.userpiclist (\n"
                     + "picid uuid,\n"
                     + "user varchar,\n"
@@ -37,19 +41,20 @@ public final class Keyspaces {
                     + "PRIMARY KEY (user,pic_added)\n"
                     + ") WITH CLUSTERING ORDER BY (pic_added desc);";
             String CreateAddressType = "CREATE TYPE if not exists instagrim.address (\n"
-                    + "      street text,\n"
-                    + "      city text,\n"
-                    + "      zip int\n"
-                    + "  );";
+                    + "street text,\n"
+                    + "city text,\n"
+                    + "zip int\n"
+                    + ");";
             String CreateUserProfile = "CREATE TABLE if not exists instagrim.userprofiles (\n"
-                    + "      login text PRIMARY KEY,\n"
-                     + "     password text,\n"
-                    + "      first_name text,\n"
-                    + "      last_name text,\n"
-                    + "      email set<text>,\n"
-                    + "      addresses  map<text, frozen <address>>\n"
-                    + "  );";
-            Session session = c.connect();
+                    + "login text PRIMARY KEY,\n"
+                    + "password text,\n"
+                    + "first_name text,\n"
+                    + "last_name text,\n"
+                    + "email set<text>,\n"
+                    + "addresses  map<text, frozen <address>>\n"
+                    + ");";
+            Session session;
+            session = c.connect();
             try {
                 PreparedStatement statement = session
                         .prepare(createkeyspace);
@@ -64,12 +69,20 @@ public final class Keyspaces {
 
             //now add some column families 
             System.out.println("" + CreatePicTable);
-
+/*
+            try {
+                SimpleStatement cqlQuery = new SimpleStatement(Createcommentlist);
+                session.execute(cqlQuery);
+            } catch (Exception et) {
+                System.out.println("Can't create Commentlist table" + et);
+            }
+            System.out.println("" + Createcommentlist);
+*/
             try {
                 SimpleStatement cqlQuery = new SimpleStatement(CreatePicTable);
                 session.execute(cqlQuery);
             } catch (Exception et) {
-                System.out.println("Can't create tweet table " + et);
+                System.out.println("Can't create PicTable table " + et);
             }
             System.out.println("" + Createuserpiclist);
 
@@ -98,6 +111,5 @@ public final class Keyspaces {
         } catch (Exception et) {
             System.out.println("Other keyspace or coulm definition error" + et);
         }
-
     }
 }

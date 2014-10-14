@@ -43,8 +43,7 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
    "/DeleteList",
    "/DeleteList/*",
    "/Delete",
-   "/Delete/*",
-   "/Comment"
+   "/Delete/*"
 })
 @MultipartConfig
 
@@ -65,7 +64,6 @@ public class Image extends HttpServlet {
       CommandsMap.put("Thumb", 3);
       CommandsMap.put("DeleteList", 4);
       CommandsMap.put("Delete", 5);
-      CommandsMap.put("Comment", 6);
    }
 
    @Override
@@ -107,10 +105,8 @@ public class Image extends HttpServlet {
             DisplayImageList(args[2], request, response, true);
             break;
          case 5:
-            DeleteImage(request, response);
+            DeleteImage(request, response, args[2]);
             break;
-         case 6:
-            //Do a thing
          default:
             error("Option not found", "This option has not been recognized", "Home", "/Instagrim", response, request);
       }
@@ -150,27 +146,33 @@ public class Image extends HttpServlet {
       }
    }
 
-   private void DeleteImage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+   private void DeleteImage(HttpServletRequest request, HttpServletResponse response, String image) throws ServletException, IOException {
       HttpSession session = request.getSession();
-      PicModel tm = new PicModel();
-      Pic delP = (Pic) session.getAttribute("Pic");
-      tm.setCluster(cluster);
-      tm.deletePic(java.util.UUID.fromString(delP.getSUUID()));
       LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-      DisplayImageList(lg.getUsername(), request, response, true);
+      String user = (String) session.getAttribute("User");
+      if (user.equals(lg.getUsername())) {
+         PicModel tm = new PicModel();
+         tm.setCluster(cluster);
+         tm.deletePic(java.util.UUID.fromString(image), user);//Call deletePic with the picId
+         DisplayImageList(lg.getUsername(), request, response, true);//Re-display the images
+      }
+      else
+      {
+         //Throw error, someone who is not the user trying to log in
+      }
    }
 
    @Override
-   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, badTypeException, fileSizeException {
+   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       try {
          for (Part part : request.getParts()) {
             System.out.println("Part Name " + part.getName());
             String type = part.getContentType();
             if (!type.startsWith("image")) {
-               throw new badTypeException();
+               //throw new badTypeException();
             }
             if (part.getSize() > 1500000) {//FOR TEST
-               throw new fileSizeException();
+               //throw new fileSizeException();
             }
             String filename = part.getSubmittedFileName();
             InputStream is = request.getPart(part.getName()).getInputStream();
@@ -193,25 +195,27 @@ public class Image extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher("/upload.jsp");
             rd.forward(request, response);
          }
-      } catch (badTypeException e) {
-         String t = "Bad Type Exception";//e.getErrorType();
-         String m = "Error: You may only upload image files!";//e.getErrorMessage();
-         String rn = "Return";
-         String r = "/Instagrim/upload.jsp";
-         error(t, m, rn, r, response, request);
-      } catch (fileSizeException fs) {
-         String t = "File Size Exception";//e.getErrorType();
-         String m = "Error: You may only upload files of upto 1500KB!";//e.getErrorMessage();
-         String rn = "Return";
-         String r = "/Instagrim/upload.jsp";
-         error(t, m, rn, r, response, request);
-      } finally {
-         String t = "Unknown Exception";
-         String m = "Error: An unknown problem has occured - Sorry";
-         String rn = "Home";
-         String r = "/Instagrim";
-         error(t, m, rn, r, response, request);
-      }
+      } catch (Exception e) {
+      }/*
+       } catch (badTypeException e) {
+       String t = "Bad Type Exception";//e.getErrorType();
+       String m = "Error: You may only upload image files!";//e.getErrorMessage();
+       String rn = "Return";
+       String r = "/Instagrim/upload.jsp";
+       error(t, m, rn, r, response, request);
+       } catch (fileSizeException fs) {
+       String t = "File Size Exception";//e.getErrorType();
+       String m = "Error: You may only upload files of upto 1500KB!";//e.getErrorMessage();
+       String rn = "Return";
+       String r = "/Instagrim/upload.jsp";
+       error(t, m, rn, r, response, request);
+       } finally {
+       String t = "Unknown Exception";
+       String m = "Error: An unknown problem has occured - Sorry";
+       String rn = "Home";
+       String r = "/Instagrim";
+       //error(t, m, rn, r, response, request);
+       }*/
 
    }
 

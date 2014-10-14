@@ -49,17 +49,22 @@
           id++;
           Pic p = (Pic) iterator.next();
           session.setAttribute("Pic", p);
-          if (!del) {
+    %>      
+    <%session.setAttribute("User", user);
+       if (!del) {
     %>
+    <!-- DISPLAY IMAGES FOR VIEWING -->
     <a href="/Instagrim/Image/<%=p.getSUUID()%>"><img alt="User instagrim picture" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
-    <form action="Comment" id="commentsForm" name ="comments" method="POST">
+
+    <form action="/Instagrim/Comment/" id="commentsForm" name ="comments" method="POST">
         Comments:<br />
         <textarea form="commentsForm" placeholder="Enter comments here..." onfocus="visable(<%=id%>);" name="commentsbox" id="comments" style="width:250px;height:50px;"></textarea>
         <br />
-        <input name="<%=id%>" style="display: none " type="submit" value="Comment" />
+        <input id="<%=id%>" style="display: none " type="submit" value="Comment" />
     </form>
     <%} else {%>
-    <a id="del" onclick="alertUser('This will delete this image, are you sure?', 'del', '/Instagrim/Delete');"><img alt="Instagrim User Image" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
+    <!--DISPLAY IMAGES FOR DELETE -->
+    <a id="<%=p.getSUUID()%>" onclick="alertUser('This will delete this image, are you sure?', '<%=p.getSUUID()%>', '/Instagrim/Delete/<%=p.getSUUID()%>');"><img alt="Instagrim User Image" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
         <%}
               }
            }

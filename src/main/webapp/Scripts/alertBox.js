@@ -34,6 +34,5 @@ function validateForm(name, field1, field2) {
 
 function visable(element)
 {
-    var el = document.getElementsByName(element);
-    el[0].style.display = 'block';
+    document.getElementById(element).style.display = 'block';
 }

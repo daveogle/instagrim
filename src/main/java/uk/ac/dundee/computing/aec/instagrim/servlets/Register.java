@@ -27,50 +27,49 @@ import uk.ac.dundee.computing.aec.instagrim.models.User;
 @WebServlet(name = "Register", urlPatterns = {"/Register"})
 public class Register extends HttpServlet {
 
-   Cluster cluster = null;
+    Cluster cluster = null;
 
-   @Override
-   public void init(ServletConfig config) throws ServletException {
-      // TODO Auto-generated method stub
-      cluster = CassandraHosts.getCluster();
-   }
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        // TODO Auto-generated method stub
+        cluster = CassandraHosts.getCluster();
+    }
 
-   /**
-    * Handles the HTTP <code>POST</code> method.
-    *
-    * @param request servlet request
-    * @param response servlet response
-    * @throws ServletException if a servlet-specific error occurs
-    * @throws IOException if an I/O error occurs
-    */
-   @Override
-   protected void doPost(HttpServletRequest request, HttpServletResponse response)
-           throws ServletException, IOException {
-      String username = request.getParameter("username");
-      String password = request.getParameter("password");
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
 
-      User us = new User();
-      us.setCluster(cluster);
-      boolean exists = us.IsValidUser(username, password);
+        User us = new User();
+        us.setCluster(cluster);
+        boolean exists = us.IsValidUser(username, password);
+        if (exists == true) { //if the user alread exists in the database
+            RequestDispatcher rd = request.getRequestDispatcher("/register.jsp");
+            request.setAttribute("exists", exists);
+            rd.forward(request, response);
+        } else {
+            us.RegisterUser(username, password);
+            response.sendRedirect("/Instagrim");
+        }
+    }
 
-      if (exists) { //if the user alread exists in the database
-         RequestDispatcher rd = request.getRequestDispatcher("/register.jsp");
-         request.setAttribute("exists", exists);
-         rd.forward(request, response);
-      } else {
-         //us.RegisterUser(username, password);
-         //response.sendRedirect("/Instagrim");
-      }
-   }
-
-   /**
-    * Returns a short description of the servlet.
-    *
-    * @return a String containing servlet description
-    */
-   @Override
-   public String getServletInfo() {
-      return "Short description";
-   }// </editor-fold>
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
 
 }
