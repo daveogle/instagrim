@@ -36,3 +36,22 @@ function visable(element)
 {
     document.getElementById(element).style.display = 'block';
 }
+
+function validateComment(id)
+{
+    var i = document.getElementById(id).value;
+    if (i === null || i === "") {
+        alert("Comments cannot be left blank");
+        return false;
+    }
+}
+
+function onClick(commentBox) {
+    var div = document.getElementById(commentBox);
+    if (div.style.display !== 'none') {
+        div.style.display = 'none';
+    }
+    else {
+        div.style.display = 'block';
+    }
+}

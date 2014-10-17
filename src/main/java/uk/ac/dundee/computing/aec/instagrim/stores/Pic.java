@@ -14,67 +14,67 @@ import java.nio.ByteBuffer;
  */
 public class Pic {
 
-    private ByteBuffer bImage = null;
-    private int length;
-    private java.util.LinkedList<String> comments = null;
-    private java.util.UUID UUID = null;
-    private String type;
+   private ByteBuffer bImage = null;
+   private int length;
+   private java.util.LinkedList<Comment> comments = new java.util.LinkedList<>();
+   private java.util.UUID UUID = null;
+   private String type;
 
-    public void Pic() {
+   public void Pic() {
 
-    }
+   }
 
-    public void addComment(String comment) {
-        if (comments.isEmpty()) {
-            comments.addFirst(comment);
-        } else {
-            comments.add(comment);
-        }
-    }
+   public void addComment(Comment comment) {
+      if (comments.isEmpty()) {
+         comments.addFirst(comment);
+      } else {
+         comments.add(comment);
+      }
+   }
 
-    public java.util.LinkedList<String> getComments() {
-        return comments;
-    }
+   public java.util.LinkedList<Comment> getComments() {
+      return comments;
+   }
 
-    public String getComment(int i) {
-        String c = comments.get(i);
-        return c;
-    }
+   public Comment getComment(int i) {
+      Comment c = comments.get(i);
+      return c;
+   }
 
-    public void setUUID(java.util.UUID UUID) {
-        this.UUID = UUID;
-    }
+   public void setUUID(java.util.UUID UUID) {
+      this.UUID = UUID;
+   }
 
-    public String getSUUID() {
-        return UUID.toString();
-    }
+   public String getSUUID() {
+      return UUID.toString();
+   }
 
-    public void setPic(ByteBuffer bImage, int length, String type) {
-        this.bImage = bImage;
-        this.length = length;
-        this.type = type;
-    }
+   public void setPic(ByteBuffer bImage, int length, String type) {
+      this.bImage = bImage;
+      this.length = length;
+      this.type = type;
+   }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+   public void setType(String type) {
+      this.type = type;
+   }
 
-    public ByteBuffer getBuffer() {
-        return bImage;
-    }
+   public ByteBuffer getBuffer() {
+      return bImage;
+   }
 
-    public int getLength() {
-        return length;
-    }
+   public int getLength() {
+      return length;
+   }
 
-    public String getType() {
-        return type;
-    }
+   public String getType() {
+      return type;
+   }
 
-    public byte[] getBytes() {
+   public byte[] getBytes() {
 
-        byte image[] = Bytes.getArray(bImage);
-        return image;
-    }
+      byte image[] = Bytes.getArray(bImage);
+      return image;
+   }
 
 }

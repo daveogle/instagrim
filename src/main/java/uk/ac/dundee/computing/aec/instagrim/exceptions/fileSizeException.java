@@ -13,7 +13,7 @@ import javax.servlet.annotation.WebServlet;
  * @author Dave Ogle
  */
 @WebServlet(name = "fileSizeException", urlPatterns = {"/fileSizeException"})
-public class fileSizeException extends ServletException {
+public class FileSizeException extends ServletException {
 
    private String errorMessage;
    private String exceptionType;

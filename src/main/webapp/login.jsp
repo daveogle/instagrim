@@ -15,9 +15,19 @@
 
     </head>
     <body>
+        <% boolean registered = false;
+           if (request.getAttribute("registered") != null) {
+              registered = (boolean) request.getAttribute("registered");
+           }%>
+        <p></p>
         <header>
+            <%if (registered) {%>
+            <h1>Congratulations on registering to Instagrim!</h1>
+            <h2>Please sign in below using your username and password!</h2>
+            <%} else {%>
             <h1>InstaGrim ! </h1>
             <h2>Your world in Black and White</h2>
+            <%}%>
         </header>
         <nav>
             <ul>               

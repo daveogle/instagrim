@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>InstaGrim</title>
+        <title>InstaGrim: Home</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="${pageContext.request.contextPath}/Scripts/alertBox.js" type="text/javascript"></script>
@@ -36,6 +36,7 @@
                 <h3>Welcome back <%=lg.getUsername()%>!</h3>
                 <ul>
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
+                    <li><a href="/Instagrim/friends.jsp">Friends</a></li>    
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
                     <li><a href="/Instagrim/DeleteList/<%=lg.getUsername()%>">Delete Image</a></li>
                     <li><a href="/Instagrim/account.jsp">My Account</a></li>

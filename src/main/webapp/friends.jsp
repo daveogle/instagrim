@@ -1,6 +1,6 @@
 <%-- 
-    Document   : account
-    Created on : 12-Oct-2014, 16:57:43
+    Document   : friends
+    Created on : 15-Oct-2014, 16:47:00
     Author     : Dave Ogle
 --%>
 
@@ -9,9 +9,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>InstaGrim: Account Page</title>
+        <title>InstaGrim: Friends</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="${pageContext.request.contextPath}/Scripts/alertBox.js" type="text/javascript"></script>
     </head>
     <body>
         <header>
@@ -20,7 +21,6 @@
         </header>
         <nav>              
             <%
-               String UserName = "";
                LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
                if (lg == null || !lg.getlogedin()) {%>
             <div class="homeMenu">
@@ -31,7 +31,8 @@
                 </ul>
                 <%
                 } else {
-                   UserName = lg.getUsername();%>
+                   String UserName = lg.getUsername();%>
+                <h3>Welcome back <%=lg.getUsername()%>!</h3>
                 <ul>
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
@@ -44,31 +45,17 @@
                }
             %>
         </nav>
-        <h1>Accounts page</h1>
-        <form method="POST" name="Account" onsubmit="">
-            <ul>
-                <li>User: <%=UserName%> </li>
-                
-                <div id="firstName">
-                    <input type="text" style="display: none"><input type="button" value="Update" style="display: none"><!--Do this for all then add to JS-->
-                </div>
-                <li>Last Name <a href="#">edit</a> </li>
-                <input id="LastName" type="text" style="display: none">
-                <li><strong>Address</strong><a href="#">edit</a> </li>
-                <li>Street</li>
-                <input id="Street" type="text" style="display: none">
-                <li>City</li>
-                <input id="City" type="text" style="display: none">
-                <li>Post Code</li>
-                <input id="PostCode" type="text" style="display: none">
-            </ul>
-        </form>
-        </br>
-        <a href="#"><img alt="User avatar picture" src=""></a>
+        <ul>
+            <h1>Friends</h1>
+            <li>You have no friends :(</li>
+            <h1>Potential Friends</h1>
+            <li>List of users in the database</li>
+        </ul>
         <footer>
-            <a href="/Instagrim/">Home</a> 
-
+            <ul>
+                <li><a href="/Instagrim">Home</a></li>
+                <li>&COPY; Andy C</li>
+            </ul>
         </footer>
-
     </body>
 </html>

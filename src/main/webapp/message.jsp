@@ -10,10 +10,16 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Instagrim: Message</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="Styles.css" />
         <title>Message</title>
     </head>
     <body>
+        <header>
+            <h1>InstaGrim ! </h1>
+            <h2>Your world in Black and White</h2>
+        </header>
         <%Message message = (Message) request.getAttribute("message");%>
         <h1><%=message.getMessageTitle()%></h1><br>
         <p><%=message.getMessage()%></p> 

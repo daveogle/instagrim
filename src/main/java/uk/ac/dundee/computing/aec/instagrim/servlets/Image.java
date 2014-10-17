@@ -1,7 +1,7 @@
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
-import uk.ac.dundee.computing.aec.instagrim.exceptions.fileSizeException;
-import uk.ac.dundee.computing.aec.instagrim.exceptions.badTypeException;
+import uk.ac.dundee.computing.aec.instagrim.exceptions.FileSizeException;
+import uk.ac.dundee.computing.aec.instagrim.exceptions.BadTypeException;
 import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 import com.datastax.driver.core.Cluster;
 import java.io.BufferedInputStream;
@@ -140,9 +140,9 @@ public class Image extends HttpServlet {
             out.write(buffer, 0, length);
          }
       } catch (IOException e) {
-         String t = "ERROR TYPE";//e.getErrorType();
-         String m = "ERROR MESSAGE";//e.getErrorMessage();
-         error(t, m, "", "", response, request);
+         String t = "I/O Error";//e.getErrorType();
+         String m = "Error displaying image";//e.getErrorMessage();
+         error(t, m, "Home", "/Instagrim", response, request);
       }
    }
 
@@ -155,24 +155,29 @@ public class Image extends HttpServlet {
          tm.setCluster(cluster);
          tm.deletePic(java.util.UUID.fromString(image), user);//Call deletePic with the picId
          DisplayImageList(lg.getUsername(), request, response, true);//Re-display the images
-      }
-      else
-      {
-         //Throw error, someone who is not the user trying to log in
+      } else {
+         String t = "Restriction Error";//e.getErrorType();
+         String m = "Error you must be logged in to delete images";//e.getErrorMessage();
+         error(t, m, "Home", "/Instagrim", response, request);
       }
    }
 
    @Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+      boolean added = false;
       try {
          for (Part part : request.getParts()) {
             System.out.println("Part Name " + part.getName());
             String type = part.getContentType();
             if (!type.startsWith("image")) {
-               //throw new badTypeException();
+               String t = "Bad Type Error";//e.getErrorType();
+               String m = "Error you can only upload image files";//e.getErrorMessage();
+               error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
             }
             if (part.getSize() > 1500000) {//FOR TEST
-               //throw new fileSizeException();
+               String t = "File to large Error";//e.getErrorType();
+               String m = "Error you can only upload images of upto 1500kb in size";//e.getErrorMessage();
+               error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
             }
             String filename = part.getSubmittedFileName();
             InputStream is = request.getPart(part.getName()).getInputStream();
@@ -189,34 +194,25 @@ public class Image extends HttpServlet {
                System.out.println("Length : " + b.length);
                PicModel tm = new PicModel();
                tm.setCluster(cluster);
-               tm.insertPic(b, type, filename, username);
+               added = tm.insertPic(b, type, filename, username);
                is.close();
             }
-            RequestDispatcher rd = request.getRequestDispatcher("/upload.jsp");
-            rd.forward(request, response);
+            RequestDispatcher rd;
+            if (added) {
+               request.setAttribute("added", true);
+               rd = request.getRequestDispatcher("/Instagrim/upload.jsp");
+               rd.forward(request, response);
+            } else {
+               String t = "Upload Error";//e.getErrorType();
+               String m = "Error uploading your image files";//e.getErrorMessage();
+               error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
+            }
          }
       } catch (Exception e) {
-      }/*
-       } catch (badTypeException e) {
-       String t = "Bad Type Exception";//e.getErrorType();
-       String m = "Error: You may only upload image files!";//e.getErrorMessage();
-       String rn = "Return";
-       String r = "/Instagrim/upload.jsp";
-       error(t, m, rn, r, response, request);
-       } catch (fileSizeException fs) {
-       String t = "File Size Exception";//e.getErrorType();
-       String m = "Error: You may only upload files of upto 1500KB!";//e.getErrorMessage();
-       String rn = "Return";
-       String r = "/Instagrim/upload.jsp";
-       error(t, m, rn, r, response, request);
-       } finally {
-       String t = "Unknown Exception";
-       String m = "Error: An unknown problem has occured - Sorry";
-       String rn = "Home";
-       String r = "/Instagrim";
-       //error(t, m, rn, r, response, request);
-       }*/
-
+         String t = "Unknown Error";//e.getErrorType();
+         String m = "An Error has occured";//e.getErrorMessage();
+         error(t, m, "Home", "/Instagrim", response, request);
+      }
    }
 
    private void error(String err, String mess, String RName, String redirect, HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {

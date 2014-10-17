@@ -5,14 +5,21 @@
  */
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
+import com.datastax.driver.core.Cluster;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
+import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
+import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
+import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 
 /**
  *
@@ -23,6 +30,14 @@ import javax.servlet.http.HttpServletResponse;
    "/Comment/*"
 })
 public class Comment extends HttpServlet {
+
+   private Cluster cluster;
+
+   @Override
+   public void init(ServletConfig config) throws ServletException {
+      // TODO Auto-generated method stub
+      cluster = CassandraHosts.getCluster();
+   }
 
    /**
     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -59,8 +74,20 @@ public class Comment extends HttpServlet {
    @Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response)
            throws ServletException, IOException {
-      RequestDispatcher rd = request.getRequestDispatcher("/Instagrim");
-      rd.forward(request, response);
+      String picId = request.getParameter("picId");
+      String comment = request.getParameter("commentsBox" + picId);//This is an issue
+      HttpSession session = request.getSession();
+      LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+      String username = lg.getUsername();
+      if (lg.getlogedin()) {
+         PicModel tm = new PicModel();
+         tm.setCluster(cluster);
+         tm.insertComment(username, java.util.UUID.fromString(picId), comment);
+      }
+      response.sendRedirect("Images/" + username);
+//      RequestDispatcher rd;
+//      rd = request.getRequestDispatcher("Images/" + username);
+//      rd.forward(request, response);
    }
 
    /**

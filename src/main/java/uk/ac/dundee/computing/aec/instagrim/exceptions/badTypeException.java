@@ -11,21 +11,5 @@ import javax.servlet.ServletException;
  *
  * @author Dave Ogle
  */
-public class badTypeException extends ServletException {
-
-   String errorType;
-   String errorMessage;
-
-   public void badTypeException() {
-      errorType = "Bad Type Exeception";
-      errorMessage = "Error: you may only upload image files";
-   }
-
-   public String getErrorMessage() {
-      return errorMessage;
-   }
-
-   public String getErrorType() {
-      return errorType;
-   }
+public class BadTypeException extends ServletException {
 }
