@@ -79,23 +79,25 @@ public class User {
       }
       return false;
    }
-   
-   public LoggedIn setAccountInfo(LoggedIn lg)
-   {
-      Session session = cluster.connect("instagrim");
-      PreparedStatement ps = session.prepare("select from userprofiles where login =?");
-      ResultSet rs = null;
-      BoundStatement selectUser  = new BoundStatement (ps);
-      rs = session.execute(selectUser.bind(lg.getUsername()));
-      if(!rs.isExhausted())//If there is a result
-      {
-         for(Row user : rs)
+
+   public LoggedIn setAccountInfo(LoggedIn lg) {
+      try {
+         Session session = cluster.connect("instagrim");
+         PreparedStatement ps = session.prepare("select * from userprofiles where login =?");
+         ResultSet rs = null;
+         BoundStatement selectUser = new BoundStatement(ps);
+         rs = session.execute(selectUser.bind(lg.getUsername()));
+         if (!rs.isExhausted())//If there is a result
          {
-            lg.setFirstName("first_name");
-            lg.setLastName("last_name");
-            lg.setEmail("email");
-            lg.setAddress(null , null, null);//find out how to do this
+            for (Row user : rs) {
+               lg.setFirstName(user.getString("first_name"));
+               lg.setLastName(user.getString("last_name"));
+               //lg.setEmail(user.getString("email")); This needs to be set to a linked list?
+               lg.setAddress(null, null, null);//find out how to do this
+            }
          }
+      } catch (Exception e) {
+         System.out.println("Unable to set accountInfo");
       }
       return lg;
    }

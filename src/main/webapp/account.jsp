@@ -12,6 +12,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>InstaGrim: Account Page</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
+        <script src="${pageContext.request.contextPath}/Scripts/alertBox.js" type="text/javascript"></script>
     </head>
     <body>
         <header>
@@ -48,11 +49,9 @@
         <form method="POST" name="Account" onsubmit="">
             <ul>
                 <li>User: <%=UserName%> </li>
-                
-                <div id="firstName">
-                    <input type="text" style="display: none"><input type="button" value="Update" style="display: none"><!--Do this for all then add to JS-->
-                </div>
-                <li>Last Name <a href="#">edit</a> </li>
+                <li>First Name: <%=lg.getFirstName()%><a title="edit_first_name" href="#" onclick="editAccount('firstName');return false">Edit</a></li>
+                <input id="firstName" type="text" style="display: none"><input id="firstNameButton" type="button" value="Update" style="display: none"><!--Do this for all then add to JS-->
+                <li>Last Name : <%=lg.getFirstName()%><a href="#">edit</a></li>
                 <input id="LastName" type="text" style="display: none">
                 <li><strong>Address</strong><a href="#">edit</a> </li>
                 <li>Street</li>

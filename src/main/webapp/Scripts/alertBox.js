@@ -37,12 +37,31 @@ function visable(element)
     document.getElementById(element).style.display = 'block';
 }
 
+function hide(element)
+{
+    document.getElementById(element).style.display = 'none';
+}
+
 function validateComment(id)
 {
     var i = document.getElementById(id).value;
     if (i === null || i === "") {
         alert("Comments cannot be left blank");
         return false;
+    }
+}
+
+function editAccount(field)
+{
+    if (document.getElementById(field).style.display === 'none')
+    {
+        visable(field);
+        visable(field + "Button");
+    }
+    else
+    {
+        hide(field);
+        hide(field + "Button");
     }
 }
 

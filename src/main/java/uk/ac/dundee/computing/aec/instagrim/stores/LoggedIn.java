@@ -13,8 +13,8 @@ public class LoggedIn {
 
    private boolean logedin = false;
    private String Username = null;
-   private String firstName = null;
-   private String lastName = null;
+   private String firstName = "";
+   private String lastName = "";
    private String email = null;
    private String street = null;
    private String city = null;
@@ -59,7 +59,9 @@ public class LoggedIn {
     * @param firstName the firstName to set
     */
    public void setFirstName(String firstName) {
-      this.firstName = firstName;
+      if (firstName != null) {
+         this.firstName = firstName;
+      }
    }
 
    /**
@@ -73,7 +75,9 @@ public class LoggedIn {
     * @param lastName the lastName to set
     */
    public void setLastName(String lastName) {
-      this.lastName = lastName;
+      if (lastName != null) {
+         this.lastName = lastName;
+      }
    }
 
    /**
