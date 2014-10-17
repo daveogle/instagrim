@@ -55,7 +55,7 @@
     <div class="picture">
         <!-- DISPLAY IMAGES FOR VIEWING -->
         <a href="/Instagrim/Image/<%=p.getSUUID()%>"><img alt="User instagrim picture" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
-        <form action="/Instagrim/Comment" id="commentsForm" onsubmit="return validateComment('Text<%=id%>');" name ="comments" method="POST">
+        <form action="/Instagrim/Comment" id="commentsForm<%=id%>" onsubmit="return validateComment('Text<%=id%>');" name ="comments" method="POST">
             <h3>Comments:</h3><input type="button" id="button<%=id%>" value="+" onclick="onClick('picture<%=id%>');">
             <div class="commentsAll" id="picture<%=id%>">
                 <%  Iterator<Comment> i;
@@ -73,7 +73,7 @@
                 </div>
                 <%}
                    }%>
-                <textarea form="commentsForm" placeholder="Enter comments here..." onfocus="visable(<%=id%>);" name="commentsBox<%=id%>" id="Text<%=id%>" style="width:250px;height:50px;"></textarea>
+                <textarea form="commentsForm<%=id%>" placeholder="Enter comments here..." onfocus="visable(<%=id%>);" name="commentsBox<%=p.getSUUID()%>" id="Text<%=id%>" style="width:250px;height:50px;"></textarea>
                 <br />
                 <input type="hidden" name="picId" value="<%=p.getSUUID()%>">
                 <input id="<%=id%>" style="display: none " type="submit" value="Comment" />

@@ -200,7 +200,7 @@ public class Image extends HttpServlet {
             RequestDispatcher rd;
             if (added) {
                request.setAttribute("added", true);
-               rd = request.getRequestDispatcher("/Instagrim/upload.jsp");
+               rd = request.getRequestDispatcher("/upload.jsp");
                rd.forward(request, response);
             } else {
                String t = "Upload Error";//e.getErrorType();
