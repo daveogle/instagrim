@@ -14,15 +14,26 @@ html
     background-color: black;
 }
 
+a:visited {
+    color: red;
+}
 nav {
     width : 15%;
-    color: red;
+    color: black;
     text-align: left;
     margin-right: 10%;
-    background-color: bisque;
+    background-color: whitesmoke;
     border: 20px;
     float: right;
+    border-radius: 25px;
 }
+
+nav h3
+{
+    padding : 20px;
+    text-align: center;
+}
+
 
 .homeMenu
 {

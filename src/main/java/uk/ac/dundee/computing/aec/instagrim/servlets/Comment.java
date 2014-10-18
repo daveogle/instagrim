@@ -26,78 +26,89 @@ import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
  * @author Dave Ogle
  */
 @WebServlet(urlPatterns = {
-   "/Comment",
-   "/Comment/*"
+    "/Comment",
+    "/Comment/*",
+    "/DeleteComment",
+    "/DeleteComment/*"
 })
 public class Comment extends HttpServlet {
 
-   private Cluster cluster;
+    private Cluster cluster;
 
-   @Override
-   public void init(ServletConfig config) throws ServletException {
-      // TODO Auto-generated method stub
-      cluster = CassandraHosts.getCluster();
-   }
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        // TODO Auto-generated method stub
+        cluster = CassandraHosts.getCluster();
+    }
 
-   /**
-    * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-    * methods.
-    *
-    * @param request servlet request
-    * @param response servlet response
-    * @throws ServletException if a servlet-specific error occurs
-    * @throws IOException if an I/O error occurs /
-    *
-    * //
-    * <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    * /**
-    * Handles the HTTP <code>GET</code> method.
-    *
-    * @param request servlet request
-    * @param response servlet response
-    * @throws ServletException if a servlet-specific error occurs
-    * @throws IOException if an I/O error occurs
-    */
-   @Override
-   protected void doGet(HttpServletRequest request, HttpServletResponse response)
-           throws ServletException, IOException {
-   }
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs /
+     *
+     * //
+     * <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String args[] = Convertors.SplitRequestPath(request);
+        HttpSession session = request.getSession();
+        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        if (lg != null && lg.getlogedin()) {
+            String username = lg.getUsername();
+            String owner = args[2];
+            if (username.equals(owner)) {
+                PicModel pm = new PicModel();
+                pm.setCluster(cluster);
+                boolean deleted = pm.deleteComment(java.util.UUID.fromString(args[3]), java.util.UUID.fromString(args[4]));
+                if (deleted) {
+                    RequestDispatcher rd = request.getRequestDispatcher("Images/" + username);
+                    rd.forward(request, response);
+                    //response.sendRedirect("/Instagrim/Images/" + username);
+                } else {
 
-   /**
-    * Handles the HTTP <code>POST</code> method.
-    *
-    * @param request servlet request
-    * @param response servlet response
-    * @throws ServletException if a servlet-specific error occurs
-    * @throws IOException if an I/O error occurs
-    */
-   @Override
-   protected void doPost(HttpServletRequest request, HttpServletResponse response)
-           throws ServletException, IOException {
-      String picId = request.getParameter("picId");
-      String comment = request.getParameter("commentsBox" + picId);//This is an issue
-      HttpSession session = request.getSession();
-      LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-      String username = lg.getUsername();
-      if (lg.getlogedin()) {
-         PicModel tm = new PicModel();
-         tm.setCluster(cluster);
-         tm.insertComment(username, java.util.UUID.fromString(picId), comment);
-      }
-      response.sendRedirect("Images/" + username);
-//      RequestDispatcher rd;
-//      rd = request.getRequestDispatcher("Images/" + username);
-//      rd.forward(request, response);
-   }
+                }
+            }
+        }
+    }
 
-   /**
-    * Returns a short description of the servlet.
-    *
-    * @return a String containing servlet description
-    */
-   @Override
-   public String getServletInfo() {
-      return "Short description";
-   }// </editor-fold>
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String picId = request.getParameter("picId");
+        String comment = request.getParameter("commentsBox" + picId);//This is an issue
+        HttpSession session = request.getSession();
+        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        String username = lg.getUsername();
+        if (lg.getlogedin()) {
+            PicModel tm = new PicModel();
+            tm.setCluster(cluster);
+            tm.insertComment(username, java.util.UUID.fromString(picId), comment);
+        }
+        response.sendRedirect("Images/" + username);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
 
 }

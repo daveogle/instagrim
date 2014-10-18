@@ -6,6 +6,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="uk.ac.dundee.computing.aec.instagrim.stores.*" %>
+<%@page import="java.util.*"%>
+<%@page import="javax.servlet.jsp.tagext.*"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,8 +23,10 @@
         </header>
         <nav>              
             <%
-               LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-               if (lg == null || !lg.getlogedin()) {%>
+                String userName = "majed";
+                LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+                java.util.LinkedList<String> users = (java.util.LinkedList<String>) request.getAttribute("users");
+                if (lg == null || !lg.getlogedin()) {%>
             <div class="homeMenu">
                 <h3>Please register as a new user or login </h3>
                 <ul> 
@@ -31,7 +35,7 @@
                 </ul>
                 <%
                 } else {
-                   String UserName = lg.getUsername();%>
+                   userName = lg.getUsername();%>
                 <h3>Welcome back <%=lg.getUsername()%>!</h3>
                 <ul>
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
@@ -42,7 +46,7 @@
                 </ul>
             </div>
             <%
-               }
+                }
             %>
         </nav>
         <ul>
@@ -50,6 +54,16 @@
             <li>You have no friends :(</li>
             <h1>Potential Friends</h1>
             <li>List of users in the database</li>
+                <%  Iterator<String> iterator;
+                    iterator = users.iterator();
+                    while (iterator.hasNext()) {
+                        String aUser = iterator.next();
+                        if (!aUser.equals(userName)) {
+                %>
+            <li><%=aUser%></li>
+                <%
+                        }
+                    }%>
         </ul>
         <footer>
             <ul>

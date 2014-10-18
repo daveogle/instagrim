@@ -16,7 +16,7 @@ public class Pic {
 
    private ByteBuffer bImage = null;
    private int length;
-   private java.util.LinkedList<Comment> comments = new java.util.LinkedList<>();
+   private java.util.LinkedList<CommentBean> comments = new java.util.LinkedList<>();
    private java.util.UUID UUID = null;
    private String type;
 
@@ -24,7 +24,7 @@ public class Pic {
 
    }
 
-   public void addComment(Comment comment) {
+   public void addComment(CommentBean comment) {
       if (comments.isEmpty()) {
          comments.addFirst(comment);
       } else {
@@ -32,12 +32,12 @@ public class Pic {
       }
    }
 
-   public java.util.LinkedList<Comment> getComments() {
+   public java.util.LinkedList<CommentBean> getComments() {
       return comments;
    }
 
-   public Comment getComment(int i) {
-      Comment c = comments.get(i);
+   public CommentBean getComment(int i) {
+      CommentBean c = comments.get(i);
       return c;
    }
 

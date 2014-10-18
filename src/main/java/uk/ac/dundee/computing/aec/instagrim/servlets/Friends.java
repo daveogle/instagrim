@@ -17,14 +17,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
-import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 
 /**
  *
- * @author Administrator
+ * @author Dave Ogle
  */
-@WebServlet(name = "Login", urlPatterns = {"/Login"})
-public class Login extends HttpServlet {
+@WebServlet(name = "Friends", urlPatterns = {"/Friends"})
+public class Friends extends HttpServlet {
 
     Cluster cluster = null;
 
@@ -32,6 +31,26 @@ public class Login extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        User us = new User();
+        us.setCluster(cluster);
+        java.util.LinkedList<String> users = us.getUsers();//Returns all the users as a linked list
+        request.setAttribute("users", users);
+        RequestDispatcher rd = request.getRequestDispatcher("friends.jsp");
+        rd.forward(request, response);
     }
 
     /**
@@ -45,31 +64,6 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-
-        User us = new User();
-        us.setCluster(cluster);
-        boolean isValid = us.IsValidUser(username, password);
-        HttpSession session = request.getSession();
-        System.out.println("Session in servlet " + session);
-        if (isValid) {
-            LoggedIn lg = new LoggedIn();
-            lg.setLogedin();
-            lg.setUsername(username);
-            lg = us.getAccountInfo(lg);
-            session.setAttribute("LoggedIn", lg);
-            System.out.println("Session in servlet " + session);
-            RequestDispatcher rd = request.getRequestDispatcher("index.jsp");
-            rd.forward(request, response);
-
-        } else {
-            request.setAttribute("notAUser", true);
-            RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
-            rd.forward(request, response);
-        }
-
     }
 
     /**
