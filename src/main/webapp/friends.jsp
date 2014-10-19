@@ -14,7 +14,7 @@
         <title>InstaGrim: Friends</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script src="${pageContext.request.contextPath}/Scripts/alertBox.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
     </head>
     <body>
         <header>
@@ -35,7 +35,7 @@
                 </ul>
                 <%
                 } else {
-                   userName = lg.getUsername();%>
+                    userName = lg.getUsername();%>
                 <h3>Welcome back <%=lg.getUsername()%>!</h3>
                 <ul>
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
@@ -52,19 +52,25 @@
         <ul>
             <h1>Friends</h1>
             <li>You have no friends :(</li>
-            <h1>Potential Friends</h1>
-            <li>List of users in the database</li>
+            <h1>Potential Friends:</h1>
+        </ul>
+        <form action="Friends" method="POST" name="selectAFriend">
+            <strong>Instagim user:</strong>
+            <select name="userList" form="selectAFriend">
+                <option value="">Select a friend from list</option>
                 <%  Iterator<String> iterator;
                     iterator = users.iterator();
                     while (iterator.hasNext()) {
                         String aUser = iterator.next();
                         if (!aUser.equals(userName)) {
                 %>
-            <li><%=aUser%></li>
+                <option value="<%=aUser%>"><%=aUser%></option>
                 <%
                         }
                     }%>
-        </ul>
+            </select>
+            <input type="submit" value="Add Friend">
+        </form>
         <footer>
             <ul>
                 <li><a href="/Instagrim">Home</a></li>

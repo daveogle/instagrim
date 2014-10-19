@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
+import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 
 /**
  *
@@ -64,6 +65,32 @@ public class Friends extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String friend = request.getParameter("userList");
+        HttpSession session = request.getSession();
+        User us = new User();
+        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        if (lg != null && lg.getlogedin()) {
+            try {
+                us.setCluster(cluster);
+                boolean added = us.addFriend(lg.getUsername(), friend);
+            } catch (Exception e) {
+
+            }
+        } else {
+            //User is not logged in
+        }
+    }
+
+    public java.util.LinkedList<String> getFriends(String username) {
+        java.util.LinkedList<String> friendList = new java.util.LinkedList<String>();
+        User us = new User();
+        try {
+            us.setCluster(cluster);
+            friendList = us.getFriendList(username);
+        } catch (Exception e) {
+
+        }
+        return friendList;
     }
 
     /**

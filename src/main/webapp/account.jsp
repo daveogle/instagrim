@@ -34,6 +34,7 @@
                 } else {
                     UserName = lg.getUsername();%>
                 <ul>
+                    <li><a href="/Instagrim/">Home</a> </li>    
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
                     <li><a href="/Instagrim/Friends">Friends</a></li>    
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
@@ -43,35 +44,36 @@
             </div>
         </nav>
         <h1>Accounts page</h1>
-        <form method="POST" name="AccountUpdate" action="Account">
-            <ul>
-                <li>User: <%=UserName%> </li>
-                <li>First Name: <%=lg.getFirstName()%>  (<a title="edit_first_name" href="#" onclick="editAccount('firstName');
-                        return false">Edit</a>)</li>
-                <input id="firstName" name="firstName" value="<%=lg.getFirstName()%>" type="text" style="display: none"><input id="firstNameButton" type="submit" value="Update" style="display: none">
-                <li>Last Name : <%=lg.getLastName()%>   (<a title="edit_last_name" href="#" onclick="editAccount('lastName');
-                        return false">Edit</a>)</li>
-                <input id="lastName" name="lastName" value="<%=lg.getLastName()%>" type="text" style="display: none"><input id="lastNameButton" type="submit" value="Update" style="display: none">
-                <li><strong>Address</strong>    (<a title="edit_account" href="#" onclick="editAccount('address');
-                        return false">Edit</a>)</li>
-                <li><%=lg.getAddress()%></li>
-            </ul>
-            <div id="address" style="display: none">
+        <div class="details">
+            <form method="POST" name="AccountUpdate" action="Account">
                 <ul>
-                    <li>Street</li>
-                    <input name="Street" type="text" value="<%=lg.getStreet()%>">
-                    <li>City</li>
-                    <input name="City" type="text" value="<%=lg.getCity()%>">
-                    <li>Post Code</li>
-                    <input name="PostCode" type="text" value="<%=lg.getPostCode()%>"><input id="addressButton" type="submit" value="Update">
+                    <li>User: <%=UserName%> </li>
+                    <li>First Name: <%=lg.getFirstName()%>  (<a title="edit_first_name" href="#" onclick="editAccount('firstName');
+                            return false">Edit</a>)</li>
+                    <input id="firstName" name="firstName" value="<%=lg.getFirstName()%>" type="text" style="display: none"><input id="firstNameButton" type="submit" value="Update" style="display: none">
+                    <li>Last Name : <%=lg.getLastName()%>   (<a title="edit_last_name" href="#" onclick="editAccount('lastName');
+                            return false">Edit</a>)</li>
+                    <input id="lastName" name="lastName" value="<%=lg.getLastName()%>" type="text" style="display: none"><input id="lastNameButton" type="submit" value="Update" style="display: none">
+                    </br>
+                    <li><strong>Address</strong>    (<a title="edit_account" href="#" onclick="editAccount('address');
+                            return false">Edit</a>)</li>
+                    <li><%=lg.getAddress()%></li>
                 </ul>
-            </div>
-        </form>
+                <div id="address" style="display: none">
+                    <ul>
+                        <li>Street</li>
+                        <input name="Street" type="text" value="<%=lg.getStreet()%>">
+                        <li>City</li>
+                        <input name="City" type="text" value="<%=lg.getCity()%>">
+                        <li>Post Code</li>
+                        <input name="PostCode" type="text" value="<%=lg.getPostCode()%>"><input id="addressButton" type="submit" value="Update">
+                    </ul>
+                </div>
+            </form>
+        </div>
         <%
             }
         %>
-        </br>
-        <a href="#"><img alt="User avatar picture" src=""></a>
         <footer>
             <a href="/Instagrim/">Home</a> 
 

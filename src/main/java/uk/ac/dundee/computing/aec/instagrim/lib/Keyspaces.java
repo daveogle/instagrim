@@ -52,8 +52,8 @@ public final class Keyspaces {
                     + "first_name text,\n"
                     + "last_name text,\n"
                     + "email set<text>,\n"
-                    + "friends set<text>,\n"
-                    + "addresses  map<text, frozen <address>>\n"
+                    + "friends list<text>,\n"
+                    + "addresses map<text, frozen <address>>\n"
                     + ");";
             Session session;
             session = c.connect();

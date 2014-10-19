@@ -10,7 +10,6 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import javafx.util.Pair;
 import com.datastax.driver.core.Session;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -97,7 +96,7 @@ public class User {
                     lg.setFirstName(user.getString("first_name"));
                     lg.setLastName(user.getString("last_name"));
                     //lg.setEmail(user.getString("email")); This needs to be set to a linked list?
-                    lg.setAddress(null, null, null);//find out how to do this
+                    lg.setAddress("", "", "");//find out how to do this
                 }
             }
         } catch (Exception e) {
@@ -107,13 +106,56 @@ public class User {
     }
 
     public boolean setAccountInfo(LoggedIn lg) {//FIX THIS!
-//        try {
-//            Session session = cluster.connect("instagrim");
-//            PreparedStatement ps = session.prepare("insert into userprofiles ");
-//        } catch (Exception e) {
-//
-//        }
+        try {
+            Session session = cluster.connect("instagrim");
+            PreparedStatement firstName = session.prepare("update userprofiles set first_name =? where login =?");
+            BoundStatement addAccountInfo = new BoundStatement(firstName);
+            session.execute(addAccountInfo.bind(lg.getFirstName(), lg.getUsername()));//Add first Name
+            PreparedStatement lastName = session.prepare("update userprofiles set last_name =? where login =?");
+            addAccountInfo = new BoundStatement(lastName);
+            session.execute(addAccountInfo.bind(lg.getLastName(), lg.getUsername()));
+            PreparedStatement address = session.prepare("update userprofiles set addresses = { 'currentAddress' : {street : ? , city : ? , post_code : ? } } where login =?");
+            addAccountInfo = new BoundStatement(address);
+            session.execute(addAccountInfo.bind(lg.getStreet(), lg.getCity(), lg.getPostCode(), lg.getUsername()));
+            session.close();
+        } catch (Exception e) {
+            return false;
+        }
         return true;
+    }
+
+    public java.util.LinkedList<String> getFriendList(String user) {
+        java.util.LinkedList<String> friendSet = new java.util.LinkedList<String>();
+        try {
+            Session session = cluster.connect("instagrim");
+            PreparedStatement ps = session.prepare("select friends from userprofiles where login =?");
+            ResultSet rs = null;
+            BoundStatement friends = new BoundStatement(ps);
+            rs = session.execute(friends.bind());
+            if (!rs.isExhausted())//If there is a result
+            {
+                for (Row row : rs) {
+                    friendSet = (java.util.LinkedList<String>) row.getList("friends", String.class);
+                }
+            }
+            session.close();
+        } catch (Exception e) {
+
+        }
+        return friendSet;
+    }
+
+    public boolean addFriend(String user, String friend) {
+        try {
+            Session session = cluster.connect("instagrim");
+            PreparedStatement ps = session.prepare("update userprofiles set friends = [ ? ] + friends WHERE login =?");
+            BoundStatement addFriend = new BoundStatement(ps);
+            session.execute(addFriend.bind(friend, user));
+            session.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public java.util.LinkedList<String> getUsers() {

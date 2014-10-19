@@ -43,7 +43,8 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
     "/DeleteList",
     "/DeleteList/*",
     "/Delete",
-    "/Delete/*"
+    "/Delete/*",
+    "/Comments/*"
 })
 @MultipartConfig
 
@@ -64,6 +65,7 @@ public class Image extends HttpServlet {
         CommandsMap.put("Thumb", 3);
         CommandsMap.put("DeleteList", 4);
         CommandsMap.put("Delete", 5);
+        CommandsMap.put("Comments", 6);
     }
 
     @Override
@@ -89,7 +91,6 @@ public class Image extends HttpServlet {
 //            error(t, m, "Home", "/Instagrim", response, request);
 //        }
 //    }
-
     /**
      * @param response
      * @throws javax.servlet.ServletException
@@ -125,6 +126,8 @@ public class Image extends HttpServlet {
             case 5:
                 DeleteImage(request, response, args[3], args[2]);
                 break;
+            case 6:
+                DisplayCommentList(args[2], request, response);
             default:
                 error("Option not found", "This option has not been recognized", "Home", "/Instagrim", response, request);
         }
@@ -133,10 +136,20 @@ public class Image extends HttpServlet {
     private void DisplayImageList(String User, HttpServletRequest request, HttpServletResponse response, Boolean del) throws ServletException, IOException {
         PicModel tm = new PicModel();
         tm.setCluster(cluster);
-        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User);
-        RequestDispatcher rd = request.getRequestDispatcher("/UsersPics.jsp");
+        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User, false);//Get images without comments
+        RequestDispatcher rd = request.getRequestDispatcher("/usersPics.jsp");
         request.setAttribute("Pics", lsPics);
         request.setAttribute("DeleteList", del);//Set if the display is for delete or not
+        request.setAttribute("User", User);//set the user that the pics belong to
+        rd.forward(request, response);
+    }
+
+    private void DisplayCommentList(String User, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        PicModel tm = new PicModel();
+        tm.setCluster(cluster);
+        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User, true);//Get images without comments
+        RequestDispatcher rd = request.getRequestDispatcher("/comments.jsp");
+        request.setAttribute("Pics", lsPics);
         request.setAttribute("User", User);//set the user that the pics belong to
         rd.forward(request, response);
     }

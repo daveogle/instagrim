@@ -39,6 +39,17 @@ nav h3
 {
 }
 
+.details{
+    width: 25%;
+    margin-bottom : 3%;
+    margin-top : 2%;
+    overflow: hidden;
+    background: #FFFFFF;
+    color: black;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 25px;
+}
+
 .commentBox{
     width: 80%;
     margin-bottom : 3%;

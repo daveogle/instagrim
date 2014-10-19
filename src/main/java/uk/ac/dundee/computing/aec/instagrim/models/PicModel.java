@@ -203,46 +203,57 @@ public class PicModel {
         return pad(img, 4);
     }
 
-    public java.util.LinkedList<Pic> getPicsForUser(String User) {
+    public java.util.LinkedList<Pic> getPicsForUser(String User, boolean comments) {
         java.util.LinkedList<Pic> Pics = new java.util.LinkedList<>();
-        Session session = cluster.connect("instagrim");
-        PreparedStatement picturePs = session.prepare("select picid from userpiclist where user =?");
-        ResultSet pictures = null;
-        ResultSet comments = null;
-        BoundStatement boundStatementPics = new BoundStatement(picturePs);
-        pictures = session.execute( // this is where the query is executed
-                boundStatementPics.bind(User));
-        if (pictures.isExhausted()) {
-            System.out.println("No Images returned");
-            return null;
-        } else {
-            for (Row row : pictures) {
-                Pic pic = new Pic();
-                java.util.UUID UUID = row.getUUID("picid");
-                PreparedStatement commentPs = session.prepare("select * from commentlist where picid =?");//Get comments
-                BoundStatement boundStatementComments = new BoundStatement(commentPs);
-                comments = session.execute( // this is where the query is executed
-                        boundStatementComments.bind(UUID));//Get all comments for the picture
-                if (!comments.isExhausted()) {
-                    for (Row commentRow : comments) {
-                        CommentBean newComment = new CommentBean();
-                        newComment.setCommentID(commentRow.getUUID("commentid"));
-                        newComment.setCommentor(commentRow.getString("user"));
-                        newComment.setComment(commentRow.getString("comment"));
-                        newComment.setCommentDate(commentRow.getDate("comment_added"));
-                        pic.addComment(newComment);
+        try {
+            Session session = cluster.connect("instagrim");
+            PreparedStatement picturePs = session.prepare("select picid from userpiclist where user =?");//Get the use pictures
+            ResultSet pictures = null;
+            BoundStatement boundStatementPics = new BoundStatement(picturePs);
+            pictures = session.execute( // this is where the query is executed
+                    boundStatementPics.bind(User));
+            if (pictures.isExhausted()) {
+                System.out.println("No Images returned");
+                return null;
+            } else {
+                for (Row row : pictures) {
+                    Pic pic = new Pic();
+                    java.util.UUID UUID = row.getUUID("picid");
+                    if (comments) {
+                        pic = getComments(session, pic, UUID);
                     }
+                    System.out.println("UUID" + UUID.toString());
+                    pic.setUUID(UUID);
+                    Pics.add(pic);
                 }
-                System.out.println("UUID" + UUID.toString());
-                pic.setUUID(UUID);
-                Pics.add(pic);
             }
             session.close();
+            return Pics;
+        } catch (Exception e) {
+            return null;
         }
-        return Pics;
     }
 
-    //Get an idividual picture
+    private Pic getComments(Session session, Pic pic, java.util.UUID UUID) {
+        ResultSet comments = null;
+        PreparedStatement commentPs = session.prepare("select * from commentlist where picid =?");//Get comments
+        BoundStatement boundStatementComments = new BoundStatement(commentPs);
+        comments = session.execute( // this is where the query is executed
+                boundStatementComments.bind(UUID));//Get all comments for the picture
+        if (!comments.isExhausted()) {
+            for (Row commentRow : comments) {
+                CommentBean newComment = new CommentBean();
+                newComment.setCommentID(commentRow.getUUID("commentid"));
+                newComment.setCommentor(commentRow.getString("user"));
+                newComment.setComment(commentRow.getString("comment"));
+                newComment.setCommentDate(commentRow.getDate("comment_added"));
+                pic.addComment(newComment);
+            }
+        }
+        return pic;
+    }
+
+//Get an idividual picture
     public Pic getPic(int image_type, java.util.UUID picid) {
         Session session = cluster.connect("instagrim");
         ByteBuffer bImage = null;

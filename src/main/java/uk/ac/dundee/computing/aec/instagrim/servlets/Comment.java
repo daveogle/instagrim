@@ -7,7 +7,6 @@ package uk.ac.dundee.computing.aec.instagrim.servlets;
 
 import com.datastax.driver.core.Cluster;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -20,6 +19,7 @@ import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
 import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
+import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 
 /**
  *
@@ -61,17 +61,29 @@ public class Comment extends HttpServlet {
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
         if (lg != null && lg.getlogedin()) {
             String username = lg.getUsername();
-            String owner = args[2];
+            String owner = args[3];
             if (username.equals(owner)) {
                 PicModel pm = new PicModel();
                 pm.setCluster(cluster);
-                boolean deleted = pm.deleteComment(java.util.UUID.fromString(args[3]), java.util.UUID.fromString(args[4]));
+                boolean deleted = pm.deleteComment(java.util.UUID.fromString(args[4]), java.util.UUID.fromString(args[5]));
                 if (deleted) {
-                    RequestDispatcher rd = request.getRequestDispatcher("Images/" + username);
-                    rd.forward(request, response);
-                    //response.sendRedirect("/Instagrim/Images/" + username);
+        Message m = new Message();
+        m.setMessageTitle("Comment Deleted");
+        m.setMessage("Your comment has been deleted");
+        m.setPageRedirectName("Back");
+        m.setPageRedirect("/Instagrim/Comments/" + username);
+        request.setAttribute("message", m);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+        dispatcher.forward(request, response);
                 } else {
-
+        Message m = new Message();
+        m.setMessageTitle("Delete Failed");
+        m.setMessage("There was an error deleting your comment");
+        m.setPageRedirectName("Back");
+        m.setPageRedirect("/Instagrim/Comments/" + username);
+        request.setAttribute("message", m);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+        dispatcher.forward(request, response);
                 }
             }
         }
@@ -98,7 +110,14 @@ public class Comment extends HttpServlet {
             tm.setCluster(cluster);
             tm.insertComment(username, java.util.UUID.fromString(picId), comment);
         }
-        response.sendRedirect("Images/" + username);
+        Message m = new Message();
+        m.setMessageTitle("Comment Added");
+        m.setMessage("Your comment has been added");
+        m.setPageRedirectName("Back");
+        m.setPageRedirect("/Instagrim/Comments/" + username);
+        request.setAttribute("message", m);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+        dispatcher.forward(request, response);
     }
 
     /**

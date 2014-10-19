@@ -5,14 +5,17 @@
  */
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
+import com.datastax.driver.core.Cluster;
 import java.io.IOException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
 import uk.ac.dundee.computing.aec.instagrim.stores.Message;
@@ -26,6 +29,14 @@ public class Account extends HttpServlet {
 
     public Account() {
 
+    }
+
+    Cluster cluster = null;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        // TODO Auto-generated method stub
+        cluster = CassandraHosts.getCluster();
     }
 
     @Override
@@ -57,10 +68,17 @@ public class Account extends HttpServlet {
             lg.setLastName(lastName);
             lg.setAddress(street, city, postCode);
             User myUser = new User();
+            myUser.setCluster(cluster);
             boolean added = myUser.setAccountInfo(lg);
             if (added) {
-                RequestDispatcher rd = request.getRequestDispatcher("account.jsp");
-                rd.forward(request, response);
+                Message m = new Message();
+                m.setMessageTitle("Account Updated");
+                m.setMessage("Your account details have been successfully updated");
+                m.setPageRedirectName("Accout");
+                m.setPageRedirect("/Instagrim/Account");
+                request.setAttribute("message", m);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                dispatcher.forward(request, response);
             } else {
                 Message m = new Message();
                 m.setMessageTitle("Account Error");

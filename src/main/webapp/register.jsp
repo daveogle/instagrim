@@ -9,7 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script src="${pageContext.request.contextPath}/Scripts/alertBox.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
         <title>InstaGrim</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
     </head>
