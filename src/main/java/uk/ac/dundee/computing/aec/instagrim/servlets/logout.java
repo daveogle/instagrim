@@ -20,7 +20,7 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Message;
  *
  * @author Dave Ogle
  */
-@WebServlet(name = "logout", urlPatterns = {"/logout"})
+@WebServlet(name = "Logout", urlPatterns = {"/Logout"})
 public class Logout extends HttpServlet {
 
    /**
@@ -58,8 +58,8 @@ public class Logout extends HttpServlet {
    @Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response)
            throws ServletException, IOException {
-      RequestDispatcher rd = request.getRequestDispatcher("index.jsp");
-      rd.forward(request, response);
+//      RequestDispatcher rd = request.getRequestDispatcher("index.jsp");
+//      rd.forward(request, response);
    }
 
    /**

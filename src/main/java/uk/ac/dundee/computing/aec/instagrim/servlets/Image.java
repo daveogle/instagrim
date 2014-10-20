@@ -1,7 +1,5 @@
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
-import uk.ac.dundee.computing.aec.instagrim.exceptions.FileSizeException;
-import uk.ac.dundee.computing.aec.instagrim.exceptions.BadTypeException;
 import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 import com.datastax.driver.core.Cluster;
 import java.io.BufferedInputStream;
@@ -9,7 +7,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -21,10 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.util.Streams;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
 import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
@@ -42,8 +35,8 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
     "/Images/*",
     "/DeleteList",
     "/DeleteList/*",
-    "/Delete",
-    "/Delete/*",
+    "/Delete",//THIS IS WRONG?
+    "/Delete/*",//AS IS THIS :'(
     "/Comments/*"
 })
 @MultipartConfig
@@ -52,7 +45,7 @@ public class Image extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private Cluster cluster;
-    private HashMap CommandsMap = new HashMap();
+    private final HashMap CommandsMap = new HashMap();
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -204,7 +197,7 @@ public class Image extends HttpServlet {
                     String m = "Error you can only upload image files";//e.getErrorMessage();
                     error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
                 }
-                if (part.getSize() > 1500000) {//FOR TEST
+                if (part.getSize() > 1500000) {//CHANGE FOR TEST
                     String t = "File to large Error";//e.getErrorType();
                     String m = "Error you can only upload images of upto 1500kb in size";//e.getErrorMessage();
                     error(t, m, "Return", "/Instagrim/upload.jsp", response, request);

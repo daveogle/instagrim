@@ -11,6 +11,8 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.UDTValue;
+import com.datastax.driver.core.UserType;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
@@ -73,7 +75,6 @@ public class User {
 
                 String StoredPass = row.getString("password");
                 if (StoredPass.compareTo(EncodedPassword) == 0) {
-                    //Here the rest of the account info can be set.
                     session.close();
                     return true;
                 }
@@ -95,17 +96,18 @@ public class User {
                 for (Row user : rs) {
                     lg.setFirstName(user.getString("first_name"));
                     lg.setLastName(user.getString("last_name"));
-                    //lg.setEmail(user.getString("email")); This needs to be set to a linked list?
-                    lg.setAddress("", "", "");//find out how to do this
+                    user.getMap("addresses", String.class, UDTValue.class).values().stream().forEach((addr) -> {
+                        lg.setAddress(addr.getString("street"), addr.getString("city"), addr.getString("post_code"));
+                    });
                 }
             }
         } catch (Exception e) {
-            System.out.println("Unable to set accountInfo");
+            System.out.println("Unable to set accountInfo" + e);
         }
         return lg;
     }
 
-    public boolean setAccountInfo(LoggedIn lg) {//FIX THIS!
+    public boolean setAccountInfo(LoggedIn lg) {
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement firstName = session.prepare("update userprofiles set first_name =? where login =?");
@@ -114,9 +116,14 @@ public class User {
             PreparedStatement lastName = session.prepare("update userprofiles set last_name =? where login =?");
             addAccountInfo = new BoundStatement(lastName);
             session.execute(addAccountInfo.bind(lg.getLastName(), lg.getUsername()));
-            PreparedStatement address = session.prepare("update userprofiles set addresses = { 'currentAddress' : {street : ? , city : ? , post_code : ? } } where login =?");
+            //Add address
+            PreparedStatement address = session.prepare("update userprofiles set addresses =? where login=?");
+            UserType addressUDT = session.getCluster().getMetadata().getKeyspace("instagrim").getUserType("address");
+            UDTValue addresses = addressUDT.newValue().setString("street", lg.getStreet()).setString("city", lg.getCity()).setString("post_code", lg.getPostCode());
+            java.util.Map<String, UDTValue> addressMap = new java.util.HashMap<>();
+            addressMap.put("Home", addresses);
             addAccountInfo = new BoundStatement(address);
-            session.execute(addAccountInfo.bind(lg.getStreet(), lg.getCity(), lg.getPostCode(), lg.getUsername()));
+            session.execute(addAccountInfo.bind(addressMap, lg.getUsername()));
             session.close();
         } catch (Exception e) {
             return false;
@@ -124,18 +131,18 @@ public class User {
         return true;
     }
 
-    public java.util.LinkedList<String> getFriendList(String user) {
-        java.util.LinkedList<String> friendSet = new java.util.LinkedList<String>();
+    public java.util.List<String> getFriendList(String user) {
+        java.util.List<String> friendSet = new java.util.LinkedList<>();
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement ps = session.prepare("select friends from userprofiles where login =?");
             ResultSet rs = null;
             BoundStatement friends = new BoundStatement(ps);
-            rs = session.execute(friends.bind());
+            rs = session.execute(friends.bind(user));
             if (!rs.isExhausted())//If there is a result
             {
                 for (Row row : rs) {
-                    friendSet = (java.util.LinkedList<String>) row.getList("friends", String.class);
+                    friendSet = row.getList("friends", String.class);
                 }
             }
             session.close();
@@ -148,9 +155,15 @@ public class User {
     public boolean addFriend(String user, String friend) {
         try {
             Session session = cluster.connect("instagrim");
-            PreparedStatement ps = session.prepare("update userprofiles set friends = [ ? ] + friends WHERE login =?");
+            java.util.List<String> friendList = getFriendList(user);
+            java.util.LinkedList<String> newFriendList = new java.util.LinkedList<>();
+            for (int i = 0; i < friendList.size(); i++) {
+                newFriendList.add(friendList.get(i));
+            }
+            newFriendList.add(friend);
+            PreparedStatement ps = session.prepare("update userprofiles set friends=? where login =?");
             BoundStatement addFriend = new BoundStatement(ps);
-            session.execute(addFriend.bind(friend, user));
+            session.execute(addFriend.bind(newFriendList, user));
             session.close();
             return true;
         } catch (Exception e) {
@@ -158,10 +171,12 @@ public class User {
         }
     }
 
-    public java.util.LinkedList<String> getUsers() {
+    public java.util.LinkedList<String> getUsers(String userName) {
         java.util.LinkedList<String> userList = new java.util.LinkedList<>();
+        java.util.LinkedList<String> newUserList = new java.util.LinkedList<>();
         try {
             Session session = cluster.connect("instagrim");
+            java.util.List<String> friendList = getFriendList(userName);
             PreparedStatement ps = session.prepare("select * from userprofiles");
             ResultSet rs = null;
             BoundStatement users = new BoundStatement(ps);
@@ -172,7 +187,7 @@ public class User {
                     userList.add(user.getString("login"));
                 }
             }
-
+            userList.removeAll(friendList);
         } catch (Exception e) {
 
         }

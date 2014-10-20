@@ -26,23 +26,41 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Message;
  */
 @WebServlet(name = "Account", urlPatterns = {"/Account"})
 public class Account extends HttpServlet {
-
+    
     public Account() {
-
+        
     }
-
+    
     Cluster cluster = null;
-
+    
     @Override
     public void init(ServletConfig config) throws ServletException {
         // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
-
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //Get the user account Information
+        HttpSession session = request.getSession();
+        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        if (lg != null && lg.getlogedin()) {
+            User myUser = new User();
+            myUser.setCluster(cluster);
+            lg = myUser.getAccountInfo(lg);
+            session.setAttribute("LoggedIn", lg);
+            RequestDispatcher rd = request.getRequestDispatcher("account.jsp");
+            rd.forward(request, response);
+        } else {
+            Message m = new Message();
+            m.setMessageTitle("Loggin Error");
+            m.setMessage("You must be logged in to view your account");
+            m.setPageRedirectName("Home");
+            m.setPageRedirect("index.jsp");
+            request.setAttribute("message", m);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+            dispatcher.forward(request, response);
+        }
     }
 
     /**

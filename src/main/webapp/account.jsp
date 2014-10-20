@@ -27,19 +27,20 @@
             <div class="homeMenu">
                 <h3>Please register as a new user or login </h3>
                 <ul> 
-                    <li><a href="register.jsp">Register</a></li>
-                    <li><a href="login.jsp">Login</a></li>  
+                    <li><a href="/Instagrim">Home</a></li>
+                    <li><a href="/Instagrim/Register">Register</a></li>
+                    <li><a href="/Instagrim/Login">Login</a></li>  
                 </ul>
                 <%
                 } else {
                     UserName = lg.getUsername();%>
                 <ul>
-                    <li><a href="/Instagrim/">Home</a> </li>    
+                    <li><a href="/Instagrim">Home</a></li>
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
                     <li><a href="/Instagrim/Friends">Friends</a></li>    
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
                     <li><a href="/Instagrim/DeleteList/<%=lg.getUsername()%>">Delete Image</a></li>
-                    <li><a href="/Instagrim/logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/logout')">Logout</a></li>
+                    <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
                 </ul>
             </div>
         </nav>
@@ -75,9 +76,7 @@
             }
         %>
         <footer>
-            <a href="/Instagrim/">Home</a> 
-
+                <p>&COPY; Andy C</p>
         </footer>
-
     </body>
 </html>

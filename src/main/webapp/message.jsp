@@ -8,14 +8,14 @@
 <%@page import="uk.ac.dundee.computing.aec.instagrim.stores.Message"%>
 <%@page import="uk.ac.dundee.computing.aec.instagrim.servlets.Logout"%>
 <!DOCTYPE html>
-<html>
+
     <head>
         <title>Instagrim: Message</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" type="text/css" href="Styles.css" />
         <title>Message</title>
     </head>
-    <body>
+    
         <header>
             <h1>InstaGrim ! </h1>
             <h2>Your world in Black and White</h2>
@@ -26,5 +26,8 @@
         <form method="GET" action="<%=message.getPageRedirect()%>">
             <input type="submit" value="<%=message.getPageRedirectName()%>">
         </form>
-    </body>
-</html>
+        <footer>
+            <p>&COPY; Andy C</p>
+        </footer>
+    
+

@@ -10,7 +10,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
-        <title>InstaGrim</title>
+        <title>InstaGrim: Register</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
     </head>
     <body>
@@ -20,7 +20,8 @@
         </header>
         <nav>
             <ul>                
-                <li><a href="/Instagrim/Images/majed">Sample Images</a></li> <!--Why is this here!?-->
+                <li><a href="/Instagrim">Home</a></li>
+                <li><a href="/Instagrim/Login">Login</a></li>
             </ul>
         </nav>
 
@@ -41,12 +42,9 @@
                 <br/>
                 <input type="submit" value="Register"> 
             </form>
-
         </article>
         <footer>
-            <ul>
-                <li class="footer"><a href="/Instagrim">Home</a></li>
-            </ul>
+                <p>&COPY; Andy C</p>
         </footer>
     </body>
 </html>

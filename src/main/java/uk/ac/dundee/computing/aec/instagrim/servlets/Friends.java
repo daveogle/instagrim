@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
+import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 
 /**
  *
@@ -46,12 +47,29 @@ public class Friends extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        User us = new User();
-        us.setCluster(cluster);
-        java.util.LinkedList<String> users = us.getUsers();//Returns all the users as a linked list
-        request.setAttribute("users", users);
-        RequestDispatcher rd = request.getRequestDispatcher("friends.jsp");
-        rd.forward(request, response);
+        HttpSession session = request.getSession();
+        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        if (lg != null && lg.getlogedin()) {
+            try {
+                User us = new User();
+                us.setCluster(cluster);
+                java.util.LinkedList<String> users = us.getUsers(lg.getUsername());//Returns all the users as a linked list
+                java.util.List<String> friends = us.getFriendList(lg.getUsername());
+                request.setAttribute("users", users);
+                request.setAttribute("friends", friends);
+                RequestDispatcher rd = request.getRequestDispatcher("friends.jsp");
+                rd.forward(request, response);
+            } catch (Exception e) {
+//                Message m = new Message();
+//                m.setMessageTitle("Error");
+//                m.setMessage("You must be logged in to view your account");
+//                m.setPageRedirectName("Login");
+//                m.setPageRedirect("/Instagrim/Login");
+//                request.setAttribute("message", m);
+//                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+//                dispatcher.forward(request, response);
+            }
+        }
     }
 
     /**
@@ -73,16 +91,38 @@ public class Friends extends HttpServlet {
             try {
                 us.setCluster(cluster);
                 boolean added = us.addFriend(lg.getUsername(), friend);
+                Message m = new Message();
+                m.setMessageTitle("Friend Added");
+                m.setMessage(friend + " was added as a friend");
+                m.setPageRedirectName("Friends");
+                m.setPageRedirect("/Instagrim/Friends");
+                request.setAttribute("message", m);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                dispatcher.forward(request, response);
             } catch (Exception e) {
-
+                Message m = new Message();
+                m.setMessageTitle("Friend Error");
+                m.setMessage("An error occured adding your Friend");
+                m.setPageRedirectName("Home");
+                m.setPageRedirect("index.jsp");
+                request.setAttribute("message", m);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                dispatcher.forward(request, response);
             }
         } else {
-            //User is not logged in
+            Message m = new Message();
+            m.setMessageTitle("Friend Error");
+            m.setMessage("You must be logged in to add Friends");
+            m.setPageRedirectName("Home");
+            m.setPageRedirect("index.jsp");
+            request.setAttribute("message", m);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+            dispatcher.forward(request, response);
         }
     }
 
-    public java.util.LinkedList<String> getFriends(String username) {
-        java.util.LinkedList<String> friendList = new java.util.LinkedList<String>();
+    public java.util.List<String> getFriends(String username) {
+        java.util.List<String> friendList = new java.util.LinkedList<>();
         User us = new User();
         try {
             us.setCluster(cluster);

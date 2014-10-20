@@ -27,8 +27,8 @@
             <div class="homeMenu">
                 <h3>Please register as a new user or login </h3>
                 <ul> 
-                    <li><a href="register.jsp">Register</a></li>
-                    <li><a href="login.jsp">Login</a></li>  
+                    <li><a href="/Instagrim/Register">Register</a></li>
+                    <li><a href="/Instagrim/Login">Login</a></li>  
                 </ul>
                 <%
                 } else {
@@ -39,8 +39,8 @@
                     <li><a href="/Instagrim/Friends">Friends</a></li>    
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
                     <li><a href="/Instagrim/DeleteList/<%=lg.getUsername()%>">Delete Image</a></li>
-                    <li><a href="/Instagrim/account.jsp">My Account</a></li>
-                    <li><a href="/Instagrim/logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/logout')">Logout</a></li>
+                    <li><a href="/Instagrim/Account">My Account</a></li>
+                    <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
                 </ul>
             </div>
             <%
@@ -48,10 +48,7 @@
             %>
         </nav>
         <footer>
-            <ul>
-                <li><a href="/Instagrim">Home</a></li>
-                <li>&COPY; Andy C</li>
-            </ul>
+                <p>&COPY; Andy C</p>
         </footer>
     </body>
 </html>

@@ -24,55 +24,57 @@
 
         <nav>
             <ul>
-                <li class="nav"><a href ="/Instagrim/Comments/<%=user%>">Show Comments</a></li>
-                <li class="nav"><a href="/Instagrim/upload.jsp">Upload</a></li >
-                <li class="nav"><a href="/Instagrim/Images/majed">Sample Images</a></li ><!--NEEDS DELT WITH-->
                 <li><a href="/Instagrim"> Home </a></li>
+                <li><a href ="/Instagrim/Comments/<%=user%>">Show Comments</a></li>
+                <li><a href="/Instagrim/upload.jsp">Upload</a></li>
+                <li><a href="/Instagrim/Friends">Friends</a></li>    
+                <li><a href="/Instagrim/DeleteList/<%=user%>">Delete Image</a></li>
+                <li><a href="/Instagrim/account.jsp">My Account</a></li>
+                <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
             </ul>
-        </nav>
+        </ul>
+    </nav>
 
-        <h1> <%=user%>'s Pics </h1>
-        <%
-            //Check if the page is to display images for display or delete
-            Boolean del = (Boolean) request.getAttribute("DeleteList");
-            java.util.LinkedList<Pic> lsPics = (java.util.LinkedList<Pic>) request.getAttribute("Pics");
-            if (lsPics == null) {
-                //If no pictures are found%>
-        <p> No Pictures found </p>
-        <%
-        } else {
-            if (del) {//If delete bool is set to true
-                out.println("<h2>Please select a photo to delete:</h2>");
-            }
-            //Display all pics
-            Iterator<Pic> iterator;
-            iterator = lsPics.iterator();
-            int id = 0;//Counter to provide unique photo id
-            while (iterator.hasNext()) {
-                id++;
-                Pic p = (Pic) iterator.next();
-                session.setAttribute("Pic", p);
-                if (!del) {
-        %>
-        <div class="picture">
-            <!-- DISPLAY IMAGES FOR VIEWING -->
-            <!--IMAGE-->
-            <a href="/Instagrim/Image/<%=p.getSUUID()%>"><img alt="User instagrim picture" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
-        </div>
-        <%} else {%>
-        <!--DISPLAY IMAGES FOR DELETE -->
-        <div class="picture">
-            <a id="<%=p.getSUUID()%>" method="DELETE" onclick="alertUser('This will delete this image, are you sure?', '<%=p.getSUUID()%>', '/Instagrim/Delete/<%=user%>/<%=p.getSUUID()%>');"><img alt="Instagrim User Image" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
-        </div>
-        <!--End of Picture to delete-->
-        <%}
-                }//End of pictures
-            }
-        %>
-        <footer>
-            <ul>
-                <li class="footer"> <a href="/Instagrim"> Home </a></li >
-            </ul>
-        </footer>
-    </body>
+    <h1> <%=user%>'s Pics </h1>
+    <%
+        //Check if the page is to display images for display or delete
+        Boolean del = (Boolean) request.getAttribute("DeleteList");
+        java.util.LinkedList<Pic> lsPics = (java.util.LinkedList<Pic>) request.getAttribute("Pics");
+        if (lsPics == null) {
+            //If no pictures are found%>
+    <p> No Pictures found </p>
+    <%
+    } else {
+        if (del) {//If delete bool is set to true
+            out.println("<h2>Please select a photo to delete:</h2>");
+        }
+        //Display all pics
+        Iterator<Pic> iterator;
+        iterator = lsPics.iterator();
+        int id = 0;//Counter to provide unique photo id
+        while (iterator.hasNext()) {
+            id++;
+            Pic p = (Pic) iterator.next();
+            session.setAttribute("Pic", p);
+            if (!del) {
+    %>
+    <div class="picture">
+        <!-- DISPLAY IMAGES FOR VIEWING -->
+        <!--IMAGE-->
+        <a href="/Instagrim/Image/<%=p.getSUUID()%>"><img alt="User instagrim picture" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
+    </div>
+    <%} else {%>
+    <!--DISPLAY IMAGES FOR DELETE -->
+    <div class="picture">
+        <a id="<%=p.getSUUID()%>" method="DELETE" onclick="alertUser('This will delete this image, are you sure?', '<%=p.getSUUID()%>', '/Instagrim/Delete/<%=user%>/<%=p.getSUUID()%>');"><img alt="Instagrim User Image" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
+    </div>
+    <!--End of Picture to delete-->
+    <%}
+            }//End of pictures
+        }
+    %>
+    <footer>
+        <p>&COPY; Andy C</p>
+    </footer>
+</body>
 </html>
