@@ -20,17 +20,15 @@ import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
 import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 import uk.ac.dundee.computing.aec.instagrim.stores.Message;
+import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
 
 /**
  *
  * @author Dave Ogle
  */
 @WebServlet(urlPatterns = {
-    "/Comment",
-    "/Comment/*",
-    "/DeleteComment",
-    "/DeleteComment/*"
-})
+    "/Comments",
+    "/Comments/*",})
 public class Comment extends HttpServlet {
 
     private Cluster cluster;
@@ -57,33 +55,47 @@ public class Comment extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String args[] = Convertors.SplitRequestPath(request);
+        PicModel tm = new PicModel();
+        tm.setCluster(cluster);
+        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(args[2], true);//Get images without comments
+        RequestDispatcher rd = request.getRequestDispatcher("/comments.jsp");
+        request.setAttribute("Pics", lsPics);
+        request.setAttribute("User", args[2]);//set the user that the pics belong to
+        rd.forward(request, response);
+
+    }
+
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String args[] = Convertors.SplitRequestPath(request);
         HttpSession session = request.getSession();
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
         if (lg != null && lg.getlogedin()) {
             String username = lg.getUsername();
-            String owner = args[3];
+            String owner = args[2];
             if (username.equals(owner)) {
                 PicModel pm = new PicModel();
                 pm.setCluster(cluster);
-                boolean deleted = pm.deleteComment(java.util.UUID.fromString(args[4]), java.util.UUID.fromString(args[5]));
+                boolean deleted = pm.deleteComment(java.util.UUID.fromString(args[3]), java.util.UUID.fromString(args[4]));
                 if (deleted) {
-        Message m = new Message();
-        m.setMessageTitle("Comment Deleted");
-        m.setMessage("Your comment has been deleted");
-        m.setPageRedirectName("Back");
-        m.setPageRedirect("/Instagrim/Comments/" + username);
-        request.setAttribute("message", m);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
-        dispatcher.forward(request, response);
+                    return;
                 } else {
-        Message m = new Message();
-        m.setMessageTitle("Delete Failed");
-        m.setMessage("There was an error deleting your comment");
-        m.setPageRedirectName("Back");
-        m.setPageRedirect("/Instagrim/Comments/" + username);
-        request.setAttribute("message", m);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
-        dispatcher.forward(request, response);
+                    Message m = new Message();
+                    m.setMessageTitle("Delete Failed");
+                    m.setMessage("There was an error deleting your comment");
+                    m.setPageRedirectName("Back");
+                    m.setPageRedirect("/Instagrim/Comments/" + username);
+                    request.setAttribute("message", m);
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                    dispatcher.forward(request, response);
                 }
             }
         }

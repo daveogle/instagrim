@@ -142,7 +142,7 @@ public class PicModel {
     public boolean deleteComments(java.util.UUID picid) {
         try {
             Session session = cluster.connect("instagrim");
-            PreparedStatement getComments = session.prepare("select * from commentslist where picid =?");
+            PreparedStatement getComments = session.prepare("select * from commentlist where picid =?");
             BoundStatement bsGetComments = new BoundStatement(getComments);
             ResultSet rs = session.execute(bsGetComments.bind(picid));
             if (!rs.isExhausted()) {

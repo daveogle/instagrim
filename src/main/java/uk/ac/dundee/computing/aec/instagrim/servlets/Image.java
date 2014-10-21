@@ -34,10 +34,7 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
     "/Images",
     "/Images/*",
     "/DeleteList",
-    "/DeleteList/*",
-    "/Delete",//THIS IS WRONG?
-    "/Delete/*",//AS IS THIS :'(
-    "/Comments/*"
+    "/DeleteList/*"
 })
 @MultipartConfig
 
@@ -57,8 +54,6 @@ public class Image extends HttpServlet {
         CommandsMap.put("Images", 2);
         CommandsMap.put("Thumb", 3);
         CommandsMap.put("DeleteList", 4);
-        CommandsMap.put("Delete", 5);
-        CommandsMap.put("Comments", 6);
     }
 
     @Override
@@ -67,23 +62,24 @@ public class Image extends HttpServlet {
         cluster = CassandraHosts.getCluster();
     }
 
-//    @Override
-//    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        HttpSession session = request.getSession();
-//        String args[] = Convertors.SplitRequestPath(request);
-//        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-//        if (args[2].equals(lg.getUsername())) {
-//            PicModel tm = new PicModel();
-//            tm.setCluster(cluster);
-//            tm.deletePic(java.util.UUID.fromString(args[3]), args[2]);//Call deletePic with the picId
-//            tm.deleteComments(java.util.UUID.fromString(args[2]));
-//            DisplayImageList(lg.getUsername(), request, response, true);//Re-display the images
-//        } else {
-//            String t = "Restriction Error";//e.getErrorType();
-//            String m = "Error you must be logged in to delete images";//e.getErrorMessage();
-//            error(t, m, "Home", "/Instagrim", response, request);
-//        }
-//    }
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String args[] = Convertors.SplitRequestPath(request);
+        HttpSession session = request.getSession();
+        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        if (args[2].equals(lg.getUsername())) {
+            PicModel tm = new PicModel();
+            tm.setCluster(cluster);
+            tm.deletePic(java.util.UUID.fromString(args[3]), args[2]);//Call deletePic with the picId
+            tm.deleteComments(java.util.UUID.fromString(args[3]));
+        } else {
+            String t = "Restriction Error";//e.getErrorType();
+            String m = "Error you must be logged in to delete images";//e.getErrorMessage();
+            error(t, m, "Home", "/Instagrim", response, request);
+        }
+        return;
+    }
+
     /**
      * @param response
      * @throws javax.servlet.ServletException
@@ -116,11 +112,6 @@ public class Image extends HttpServlet {
             case 4:
                 DisplayImageList(args[2], request, response, true);
                 break;
-            case 5:
-                DeleteImage(request, response, args[3], args[2]);
-                break;
-            case 6:
-                DisplayCommentList(args[2], request, response);
             default:
                 error("Option not found", "This option has not been recognized", "Home", "/Instagrim", response, request);
         }
@@ -133,16 +124,6 @@ public class Image extends HttpServlet {
         RequestDispatcher rd = request.getRequestDispatcher("/usersPics.jsp");
         request.setAttribute("Pics", lsPics);
         request.setAttribute("DeleteList", del);//Set if the display is for delete or not
-        request.setAttribute("User", User);//set the user that the pics belong to
-        rd.forward(request, response);
-    }
-
-    private void DisplayCommentList(String User, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        PicModel tm = new PicModel();
-        tm.setCluster(cluster);
-        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User, true);//Get images without comments
-        RequestDispatcher rd = request.getRequestDispatcher("/comments.jsp");
-        request.setAttribute("Pics", lsPics);
         request.setAttribute("User", User);//set the user that the pics belong to
         rd.forward(request, response);
     }
@@ -165,22 +146,6 @@ public class Image extends HttpServlet {
         } catch (IOException e) {
             String t = "I/O Error";//e.getErrorType();
             String m = "Error displaying image";//e.getErrorMessage();
-            error(t, m, "Home", "/Instagrim", response, request);
-        }
-    }
-
-    private void DeleteImage(HttpServletRequest request, HttpServletResponse response, String image, String owner) throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-        if (owner.equals(lg.getUsername())) {
-            PicModel tm = new PicModel();
-            tm.setCluster(cluster);
-            tm.deletePic(java.util.UUID.fromString(image), owner);//Call deletePic with the picId
-            tm.deleteComments(java.util.UUID.fromString(image));
-            DisplayImageList(lg.getUsername(), request, response, true);//Re-display the images
-        } else {
-            String t = "Restriction Error";//e.getErrorType();
-            String m = "Error you must be logged in to delete images";//e.getErrorMessage();
             error(t, m, "Home", "/Instagrim", response, request);
         }
     }

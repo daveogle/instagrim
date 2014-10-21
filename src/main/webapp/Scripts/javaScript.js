@@ -74,3 +74,43 @@ function onClick(commentBox) {
         div.style.display = 'block';
     }
 }
+
+function deletePic(id, user)
+{
+    if (confirm("Are you sure you want to delete this image?") === true) {
+        $.ajax({
+            type: "DELETE",
+            async: false,
+            url: "/Instagrim/Image/" + user + "/" + id,
+            success: function (msg) {
+                alert("Image " + id + " Deleted: " + msg);
+                location.reload();
+            },
+            error: function (msg) {
+                alert("Error: " + msg);
+            }
+        });
+    } else {
+        document.getElementById(id).href = "#";
+    }
+}
+
+function deleteComment(user, picId, commentId)
+{
+    if (confirm("Are you sure you want to delete this comment?") === true) {
+        $.ajax({
+            type: "DELETE",
+            async: false,
+            url: "/Instagrim/Comments/" + user + "/" + picId + "/" + commentId,
+            success: function (msg) {
+                alert("Comment " + commentId + " Deleted: " + msg);
+                location.reload();
+            },
+            error: function (msg) {
+                alert("Error: " + msg);
+            }
+        });
+    } else {
+        document.getElementById(id).href = "#";
+    }
+}

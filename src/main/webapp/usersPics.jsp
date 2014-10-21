@@ -14,6 +14,7 @@
     <head>
         <title> Instagrim: <%=user%>'s Pics</title>
         <link rel="stylesheet" type="text/css" href="/Instagrim/Styles.css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
     </head>
     <body>
@@ -66,7 +67,7 @@
     <%} else {%>
     <!--DISPLAY IMAGES FOR DELETE -->
     <div class="picture">
-        <a id="<%=p.getSUUID()%>" method="DELETE" onclick="alertUser('This will delete this image, are you sure?', '<%=p.getSUUID()%>', '/Instagrim/Delete/<%=user%>/<%=p.getSUUID()%>');"><img alt="Instagrim User Image" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
+        <a id="<%=p.getSUUID()%>" onclick="deletePic('<%=p.getSUUID()%>', '<%=user%>');"><img alt="Instagrim User Image" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
     </div>
     <!--End of Picture to delete-->
     <%}

@@ -34,7 +34,7 @@ public class User {
         AeSimpleSHA1 sha1handler = new AeSimpleSHA1();
         String EncodedPassword = null;
         try {
-            EncodedPassword = sha1handler.SHA1(Password);
+            EncodedPassword = AeSimpleSHA1.SHA1(Password);
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException et) {
             System.out.println("Can't check your password");
             return false;
@@ -52,19 +52,17 @@ public class User {
     }
 
     public boolean IsValidUser(String username, String Password) {
-        AeSimpleSHA1 sha1handler = new AeSimpleSHA1();
         String EncodedPassword = null;
         try {
-            EncodedPassword = sha1handler.SHA1(Password);
+            EncodedPassword = AeSimpleSHA1.SHA1(Password);
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException et) {
             System.out.println("Can't check your password");
             return false;
         }
         Session session = cluster.connect("instagrim");
         PreparedStatement ps = session.prepare("select password from userprofiles where login =?");
-        ResultSet rs = null;
         BoundStatement boundStatement = new BoundStatement(ps);
-        rs = session.execute( // this is where the query is executed
+        ResultSet rs = session.execute( // this is where the query is executed
                 boundStatement.bind( // here you are binding the 'boundStatement'
                         username));
         if (rs.isExhausted()) {
@@ -173,7 +171,7 @@ public class User {
 
     public java.util.LinkedList<String> getUsers(String userName) {
         java.util.LinkedList<String> userList = new java.util.LinkedList<>();
-        java.util.LinkedList<String> newUserList = new java.util.LinkedList<>();
+        //java.util.LinkedList<String> newUserList = new java.util.LinkedList<>();
         try {
             Session session = cluster.connect("instagrim");
             java.util.List<String> friendList = getFriendList(userName);
