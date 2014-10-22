@@ -20,7 +20,7 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Message;
  *
  * @author Dave Ogle
  */
-@WebServlet(name = "logout", urlPatterns = {"/logout"})
+@WebServlet(name = "Logout", urlPatterns = {"/Logout"})
 public class Logout extends HttpServlet {
 
    /**
