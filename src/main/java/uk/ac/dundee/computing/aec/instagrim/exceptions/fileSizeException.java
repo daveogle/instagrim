@@ -14,20 +14,4 @@ import javax.servlet.annotation.WebServlet;
  */
 @WebServlet(name = "fileSizeException", urlPatterns = {"/fileSizeException"})
 public class FileSizeException extends ServletException {
-
-   private String errorMessage;
-   private String exceptionType;
-
-   public void fileSizeException() {
-      errorMessage = "Error: your file may be no larger than 1500kb in size";
-      exceptionType = "File Size Exception";
-   }
-
-   public String getErrorMessage() {
-      return errorMessage;
-   }
-
-   public String getErrorType() {
-      return exceptionType;
-   }
 }

@@ -5,11 +5,17 @@ import com.datastax.driver.core.Cluster;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.nio.file.Files;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -77,7 +83,6 @@ public class Image extends HttpServlet {
             String m = "Error you must be logged in to delete images";//e.getErrorMessage();
             error(t, m, "Home", "/Instagrim", response, request);
         }
-        return;
     }
 
     /**
@@ -103,7 +108,7 @@ public class Image extends HttpServlet {
             case 1:
                 DisplayImage(Convertors.DISPLAY_PROCESSED, args[2], request, response);
                 break;
-            case 2://Display all images
+            case 2:
                 DisplayImageList(args[2], request, response, false);
                 break;
             case 3:
@@ -119,6 +124,15 @@ public class Image extends HttpServlet {
 
     private void DisplayImageList(String User, HttpServletRequest request, HttpServletResponse response, Boolean del) throws ServletException, IOException {
         PicModel tm = new PicModel();
+        if (User.equals("Sample")) {//If the user is not logged in
+            if (del) {//if trying to delete without logging in
+                del = false;//Set delete to false! Easy
+            }
+            tm.setCluster(cluster);
+            if (tm.hasPictures(User) != 1) {//If the sample pictures have not been uploaded
+                UploadSampleImages();
+            }
+        }
         tm.setCluster(cluster);
         java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(User, false);//Get images without comments
         RequestDispatcher rd = request.getRequestDispatcher("/usersPics.jsp");
@@ -140,7 +154,7 @@ public class Image extends HttpServlet {
             InputStream is = new ByteArrayInputStream(p.getBytes());
             BufferedInputStream input = new BufferedInputStream(is);
             byte[] buffer = new byte[8192];
-            for (int length = 0; (length = input.read(buffer)) > 0;) {
+            for (int length; (length = input.read(buffer)) > 0;) {
                 out.write(buffer, 0, length);
             }
         } catch (IOException e) {
@@ -172,7 +186,7 @@ public class Image extends HttpServlet {
                 int i = is.available();
                 HttpSession session = request.getSession();
                 LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-                String username = "majed";
+                String username = "";//Do something with this
                 if (lg.getlogedin()) {
                     username = lg.getUsername();
                 }
@@ -190,16 +204,34 @@ public class Image extends HttpServlet {
                     request.setAttribute("added", true);
                     rd = request.getRequestDispatcher("/upload.jsp");
                     rd.forward(request, response);
-                } else {
-                    String t = "Upload Error";//e.getErrorType();
-                    String m = "Error uploading your image files";//e.getErrorMessage();
-                    error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException | ServletException e) {
             String t = "Unknown Error";//e.getErrorType();
             String m = "An Error has occured";//e.getErrorMessage();
             error(t, m, "Home", "/Instagrim", response, request);
+
+        }
+    }
+
+    private void UploadSampleImages() throws IOException {
+        try {
+            String[] samplePics = new String[]{"boat1.jpg", "boat2.jpg", "boat3.jpg"};
+            for (int i = 0; i < 3; i++) {
+                Path path = Paths.get("/SamplePics/" + samplePics[i]);
+                String type = Files.probeContentType(path);
+                InputStream bais = getClass().getResourceAsStream("/SamplePics/" + samplePics[i]);
+                BufferedImage bufferedImage = ImageIO.read(bais);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "jpg", baos);
+                byte[] imageInByte = baos.toByteArray();
+                PicModel tm = new PicModel();
+                tm.setCluster(cluster);
+                tm.insertPic(imageInByte, type, samplePics[i], "Sample");
+                bais.close();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 

@@ -43,9 +43,7 @@ public class User {
         PreparedStatement ps = session.prepare("insert into userprofiles (login,password) Values(?,?)");
 
         BoundStatement boundStatement = new BoundStatement(ps);
-        session.execute( // this is where the query is executed
-                boundStatement.bind( // here you are binding the 'boundStatement'
-                        username, EncodedPassword));
+        session.execute(boundStatement.bind(username, EncodedPassword));
         //We are assuming this always works.  Also a transaction would be good here !
         session.close();
         return true;
@@ -171,7 +169,6 @@ public class User {
 
     public java.util.LinkedList<String> getUsers(String userName) {
         java.util.LinkedList<String> userList = new java.util.LinkedList<>();
-        //java.util.LinkedList<String> newUserList = new java.util.LinkedList<>();
         try {
             Session session = cluster.connect("instagrim");
             java.util.List<String> friendList = getFriendList(userName);

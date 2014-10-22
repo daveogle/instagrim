@@ -10,27 +10,18 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.utils.Bytes;
 import java.awt.image.BufferedImage;
-import java.util.Locale;
-import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.io.File;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Date;
-import java.util.LinkedList;
 import javax.imageio.ImageIO;
-import java.text.DateFormat;
 import static org.imgscalr.Scalr.*;
 import org.imgscalr.Scalr.Method;
-
 import uk.ac.dundee.computing.aec.instagrim.lib.*;
 import uk.ac.dundee.computing.aec.instagrim.stores.*;
 
@@ -46,42 +37,55 @@ public class PicModel {
         this.cluster = cluster;
     }
 
-    public boolean insertPic(byte[] b, String type, String name, String user) {
+    public int hasPictures(String user) {
         try {
-            Convertors convertor = new Convertors();
+            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            PreparedStatement psGetPics = session.prepare("select * from Pics where user =?");
+            ResultSet hasPictures = null;
+            BoundStatement boundStatementPics = new BoundStatement(psGetPics);
+            hasPictures = session.execute(boundStatementPics.bind(user));
+            if (hasPictures.all().isEmpty()) {//If there are no pictures
+                return 0;//true
+            } else {
+                return 1;//false
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            return -1;//Error code
+        }
+    }
 
+    public boolean insertPic(byte[] b, String type, String name, String user) throws IOException {
+        try {
             String types[] = Convertors.SplitFiletype(type);
-            ByteBuffer buffer = ByteBuffer.wrap(b);
             int length = b.length;
-            java.util.UUID picid = convertor.getTimeUUID();
-
-            //The following is a quick and dirty way of doing this, will fill the disk quickly !
-            Boolean success = (new File("/var/tmp/instagrim/")).mkdirs();//Create a temp dir
-            FileOutputStream output = new FileOutputStream(new File("/var/tmp/instagrim/" + picid));//store the pic id in it
-
-            output.write(b);//write to the buffer
-            byte[] thumbb = picresize(picid.toString(), types[1]);
+            java.util.UUID picid = Convertors.getTimeUUID();
+            byte[] thumbb = picresize(picid.toString(), types[1], b);
             int thumblength = thumbb.length;
             ByteBuffer thumbbuf = ByteBuffer.wrap(thumbb);
-            byte[] processedb = picdecolour(picid.toString(), types[1]);
+            byte[] processedb = picdecolour(picid.toString(), types[1], b);
             ByteBuffer processedbuf = ByteBuffer.wrap(processedb);
             int processedlength = processedb.length;
-            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            try {
+                Session session = cluster.connect("instagrim");//Connect to Instagrim db
+                ByteBuffer buffer = ByteBuffer.wrap(b);
+                /*
+                 Insert the picture into the keyspaces pics & userpiclist
+                 */
+                PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image,thumb,processed, user, interaction_time,imagelength,thumblength,processedlength,type,name) values(?,?,?,?,?,?,?,?,?,?,?)");
+                PreparedStatement psInsertPicToUser = session.prepare("insert into userpiclist ( picid, user, pic_added) values(?,?,?)");
+                BoundStatement bsInsertPic = new BoundStatement(psInsertPic);
+                BoundStatement bsInsertPicToUser = new BoundStatement(psInsertPicToUser);
 
-            /*
-             Insert the picture into the keyspaces pics & userpiclist
-             */
-            PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image,thumb,processed, user, interaction_time,imagelength,thumblength,processedlength,type,name) values(?,?,?,?,?,?,?,?,?,?,?)");
-            PreparedStatement psInsertPicToUser = session.prepare("insert into userpiclist ( picid, user, pic_added) values(?,?,?)");
-            BoundStatement bsInsertPic = new BoundStatement(psInsertPic);
-            BoundStatement bsInsertPicToUser = new BoundStatement(psInsertPicToUser);
-
-            Date DateAdded = new Date();
-            session.execute(bsInsertPic.bind(picid, buffer, thumbbuf, processedbuf, user, DateAdded, length, thumblength, processedlength, type, name));
-            session.execute(bsInsertPicToUser.bind(picid, user, DateAdded));
-            session.close();
+                Date DateAdded = new Date();
+                session.execute(bsInsertPic.bind(picid, buffer, thumbbuf, processedbuf, user, DateAdded, length, thumblength, processedlength, type, name));
+                session.execute(bsInsertPicToUser.bind(picid, user, DateAdded));
+                session.close();
+            } catch (Exception ex) {
+                System.out.println("Error --> " + ex);
+            }
             return true;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.out.println("Error --> " + ex);
             return false;
         }
@@ -158,26 +162,27 @@ public class PicModel {
         }
     }
 
-    public byte[] picresize(String picid, String type) {
+    public byte[] picresize(String picid, String type, byte[] b) throws IOException {
         try {
-            BufferedImage BI = ImageIO.read(new File("/var/tmp/instagrim/" + picid));
+            InputStream bais = new ByteArrayInputStream(b);
+            BufferedImage BI = ImageIO.read(bais);
             BufferedImage thumbnail = createThumbnail(BI);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(thumbnail, type, baos);
             baos.flush();
-
             byte[] imageInByte = baos.toByteArray();
             baos.close();
             return imageInByte;
         } catch (IOException et) {
-
+            System.out.println(et);
         }
         return null;
     }
 
-    public byte[] picdecolour(String picid, String type) {
+    public byte[] picdecolour(String picid, String type, byte[] b) {
         try {
-            BufferedImage BI = ImageIO.read(new File("/var/tmp/instagrim/" + picid));
+            InputStream bais = new ByteArrayInputStream(b);
+            BufferedImage BI = ImageIO.read(bais);
             BufferedImage processed = createProcessed(BI);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(processed, type, baos);
@@ -186,14 +191,14 @@ public class PicModel {
             baos.close();
             return imageInByte;
         } catch (IOException et) {
-
+            System.out.println(et);
         }
         return null;
     }
 
     public static BufferedImage createThumbnail(BufferedImage img) {
         img = resize(img, Method.SPEED, 250, OP_ANTIALIAS, OP_GRAYSCALE);
-        // Let's add a little border before we return result.
+        // add a little border before we return result.
         return pad(img, 2);
     }
 

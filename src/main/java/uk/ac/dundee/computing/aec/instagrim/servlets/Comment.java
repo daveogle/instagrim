@@ -28,7 +28,7 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
  */
 @WebServlet(urlPatterns = {
     "/Comments",
-    "/Comments/*",})
+    "/Comments/*"})
 public class Comment extends HttpServlet {
 
     private Cluster cluster;
@@ -54,15 +54,19 @@ public class Comment extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        RequestDispatcher rd;
         String args[] = Convertors.SplitRequestPath(request);
-        PicModel tm = new PicModel();
-        tm.setCluster(cluster);
-        java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(args[2], true);//Get images without comments
-        RequestDispatcher rd = request.getRequestDispatcher("/comments.jsp");
-        request.setAttribute("Pics", lsPics);
-        request.setAttribute("User", args[2]);//set the user that the pics belong to
+        if (args[2].equals("Sample")) {//If Sample user
+             rd = request.getRequestDispatcher("/Images/Sample");
+        } else {
+            PicModel tm = new PicModel();
+            tm.setCluster(cluster);
+            java.util.LinkedList<Pic> lsPics = tm.getPicsForUser(args[2], true);//Get images without comments
+            rd = request.getRequestDispatcher("/comments.jsp");
+            request.setAttribute("Pics", lsPics);
+            request.setAttribute("User", args[2]);//set the user that the pics belong to
+        }
         rd.forward(request, response);
-
     }
 
     /**

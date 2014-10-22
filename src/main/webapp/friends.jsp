@@ -61,7 +61,7 @@
                     while (iterator.hasNext()) {
                         String aFriend = iterator.next();
                 %>
-            <li><%=aFriend%></li> 
+            <li><a href="/Instagrim/Images/<%=aFriend%>"><%=aFriend%></a></li> 
                 <%}
                     }%>
             <h1>Potential Friends:</h1>

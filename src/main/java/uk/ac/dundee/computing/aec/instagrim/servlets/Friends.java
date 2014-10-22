@@ -60,15 +60,24 @@ public class Friends extends HttpServlet {
                 RequestDispatcher rd = request.getRequestDispatcher("friends.jsp");
                 rd.forward(request, response);
             } catch (Exception e) {
-//                Message m = new Message();
-//                m.setMessageTitle("Error");
-//                m.setMessage("You must be logged in to view your account");
-//                m.setPageRedirectName("Login");
-//                m.setPageRedirect("/Instagrim/Login");
-//                request.setAttribute("message", m);
-//                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
-//                dispatcher.forward(request, response);
+                Message m = new Message();
+                m.setMessageTitle("Error");
+                m.setMessage("There was an error accessing your friends");
+                m.setPageRedirectName("Home");
+                m.setPageRedirect("/Instagrim");
+                request.setAttribute("message", m);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                dispatcher.forward(request, response);
             }
+        } else {
+            Message m = new Message();
+            m.setMessageTitle("Error");
+            m.setMessage("You must be logged in to access your friends");
+            m.setPageRedirectName("Home");
+            m.setPageRedirect("/Instagrim");
+            request.setAttribute("message", m);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+            dispatcher.forward(request, response);
         }
     }
 
@@ -91,6 +100,7 @@ public class Friends extends HttpServlet {
             try {
                 us.setCluster(cluster);
                 boolean added = us.addFriend(lg.getUsername(), friend);
+                added = us.addFriend(friend, lg.getUsername());
                 Message m = new Message();
                 m.setMessageTitle("Friend Added");
                 m.setMessage(friend + " was added as a friend");

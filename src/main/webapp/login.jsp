@@ -33,6 +33,7 @@
             <ul>               
                 <li><a href="/Instagrim">Home</a></li>
                 <li><a href="/Instagrim/Register">Register</a></li>
+                <li><a href="/Instagrim/Images/Sample">Sample Images</a></li>
             </ul>
         </nav>
 

@@ -22,6 +22,7 @@
             <ul>                
                 <li><a href="/Instagrim">Home</a></li>
                 <li><a href="/Instagrim/Login">Login</a></li>
+                <li><a href="/Instagrim/Images/Sample">Sample Images</a></li>
             </ul>
         </nav>
 
@@ -29,10 +30,10 @@
             <h3>Register a new user</h3>
             <form name="register" onsubmit="return validateForm('register', 'username', 'password')" method="POST"  action="Register">
                 <% boolean a = false;
-                   if (request.getAttribute("exists") != null) {
-                      a = (boolean) request.getAttribute("exists");
-                   }
-                   if (a) {%>
+                    if (request.getAttribute("exists") != null) {
+                        a = (boolean) request.getAttribute("exists");
+                    }
+                    if (a) {%>
                 <p style="color:red"><b>That name already taken, please choose another... </b></p> 
                 <%}%>
                 <ul>
@@ -44,7 +45,7 @@
             </form>
         </article>
         <footer>
-                <p>&COPY; Andy C</p>
+            <p>&COPY; Andy C</p>
         </footer>
     </body>
 </html>

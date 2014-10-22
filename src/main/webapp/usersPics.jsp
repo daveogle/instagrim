@@ -25,6 +25,11 @@
 
         <nav>
             <ul>
+                <%if (user.equals("Sample")) {%>
+                <li><a href="/Instagrim"> Home </a></li>
+                <li><a href="/Instagrim/Register">Register</a></li>
+                <li><a href="/Instagrim/Login">Login</a></li>  
+                    <%} else {%>
                 <li><a href="/Instagrim"> Home </a></li>
                 <li><a href ="/Instagrim/Comments/<%=user%>">Show Comments</a></li>
                 <li><a href="/Instagrim/upload.jsp">Upload</a></li>
@@ -32,6 +37,7 @@
                 <li><a href="/Instagrim/DeleteList/<%=user%>">Delete Image</a></li>
                 <li><a href="/Instagrim/account.jsp">My Account</a></li>
                 <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
+                    <%}%> 
             </ul>
         </ul>
     </nav>

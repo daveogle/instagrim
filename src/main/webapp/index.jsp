@@ -22,17 +22,18 @@
         </header>
         <nav>              
             <%
-               LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-               if (lg == null || !lg.getlogedin()) {%>
+                LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+                if (lg == null || !lg.getlogedin()) {%>
             <div class="homeMenu">
                 <h3>Please register as a new user or login </h3>
                 <ul> 
                     <li><a href="/Instagrim/Register">Register</a></li>
                     <li><a href="/Instagrim/Login">Login</a></li>  
+                    <li><a href="/Instagrim/Images/Sample">Sample Images</a></li>
                 </ul>
                 <%
                 } else {
-                   String UserName = lg.getUsername();%>
+                    String UserName = lg.getUsername();%>
                 <h3>Welcome back <%=lg.getUsername()%>!</h3>
                 <ul>
                     <li><a href="/Instagrim/upload.jsp">Upload</a></li>
@@ -44,11 +45,11 @@
                 </ul>
             </div>
             <%
-               }
+                }
             %>
         </nav>
         <footer>
-                <p>&COPY; Andy C</p>
+            <p>&COPY; Andy C</p>
         </footer>
     </body>
 </html>
