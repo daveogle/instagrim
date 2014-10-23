@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 import uk.ac.dundee.computing.aec.instagrim.lib.AeSimpleSHA1;
+import uk.ac.dundee.computing.aec.instagrim.stores.AccountBean;
 
 /**
  *
@@ -80,46 +81,50 @@ public class User {
         return false;
     }
 
-    public LoggedIn getAccountInfo(LoggedIn lg) {
+    public AccountBean getAccountInfo(AccountBean ac, String userName) {
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement ps = session.prepare("select * from userprofiles where login =?");
             ResultSet rs = null;
             BoundStatement selectUser = new BoundStatement(ps);
-            rs = session.execute(selectUser.bind(lg.getUsername()));
+            rs = session.execute(selectUser.bind(userName));
             if (!rs.isExhausted())//If there is a result
             {
                 for (Row user : rs) {
-                    lg.setFirstName(user.getString("first_name"));
-                    lg.setLastName(user.getString("last_name"));
+                    ac.setFirstName(user.getString("first_name"));
+                    ac.setLastName(user.getString("last_name"));
+                    ac.setEmail(user.getString("email"));
                     user.getMap("addresses", String.class, UDTValue.class).values().stream().forEach((addr) -> {
-                        lg.setAddress(addr.getString("street"), addr.getString("city"), addr.getString("post_code"));
+                        ac.setAddress(addr.getString("street"), addr.getString("city"), addr.getString("post_code"));
                     });
                 }
             }
         } catch (Exception e) {
             System.out.println("Unable to set accountInfo" + e);
         }
-        return lg;
+        return ac;
     }
 
-    public boolean setAccountInfo(LoggedIn lg) {
+    public boolean setAccountInfo(AccountBean ac, String userName) {
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement firstName = session.prepare("update userprofiles set first_name =? where login =?");
             BoundStatement addAccountInfo = new BoundStatement(firstName);
-            session.execute(addAccountInfo.bind(lg.getFirstName(), lg.getUsername()));//Add first Name
+            session.execute(addAccountInfo.bind(ac.getFirstName(), userName));//Add first Name
             PreparedStatement lastName = session.prepare("update userprofiles set last_name =? where login =?");
             addAccountInfo = new BoundStatement(lastName);
-            session.execute(addAccountInfo.bind(lg.getLastName(), lg.getUsername()));
+            session.execute(addAccountInfo.bind(ac.getLastName(), userName));
+            PreparedStatement email = session.prepare("update userprofiles set email =? where login =?");
+            addAccountInfo = new BoundStatement(email);
+            session.execute(addAccountInfo.bind(ac.getEmail(), userName));
             //Add address
             PreparedStatement address = session.prepare("update userprofiles set addresses =? where login=?");
             UserType addressUDT = session.getCluster().getMetadata().getKeyspace("instagrim").getUserType("address");
-            UDTValue addresses = addressUDT.newValue().setString("street", lg.getStreet()).setString("city", lg.getCity()).setString("post_code", lg.getPostCode());
+            UDTValue addresses = addressUDT.newValue().setString("street", ac.getStreet()).setString("city", ac.getCity()).setString("post_code", ac.getPostCode());
             java.util.Map<String, UDTValue> addressMap = new java.util.HashMap<>();
             addressMap.put("Home", addresses);
             addAccountInfo = new BoundStatement(address);
-            session.execute(addAccountInfo.bind(addressMap, lg.getUsername()));
+            session.execute(addAccountInfo.bind(addressMap, userName));
             session.close();
         } catch (Exception e) {
             return false;

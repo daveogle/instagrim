@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
+import uk.ac.dundee.computing.aec.instagrim.stores.AccountBean;
 import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 
 /**
@@ -26,19 +27,19 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Message;
  */
 @WebServlet(name = "Account", urlPatterns = {"/Account"})
 public class Account extends HttpServlet {
-    
+
     public Account() {
-        
+
     }
-    
+
     Cluster cluster = null;
-    
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -47,8 +48,9 @@ public class Account extends HttpServlet {
         if (lg != null && lg.getlogedin()) {
             User myUser = new User();
             myUser.setCluster(cluster);
-            lg = myUser.getAccountInfo(lg);
-            session.setAttribute("LoggedIn", lg);
+            AccountBean ac = new AccountBean();
+            ac = myUser.getAccountInfo(ac, lg.getUsername());
+            request.setAttribute("AccountInfo", ac);
             RequestDispatcher rd = request.getRequestDispatcher("account.jsp");
             rd.forward(request, response);
         } else {
@@ -76,18 +78,21 @@ public class Account extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+        AccountBean ac = new AccountBean();
         if (lg != null && lg.getlogedin()) {
             String firstName = request.getParameter("firstName");
             String lastName = request.getParameter("lastName");
+            String email = request.getParameter("email");
             String street = request.getParameter("Street");
             String city = request.getParameter("City");
             String postCode = request.getParameter("PostCode");
-            lg.setFirstName(firstName);
-            lg.setLastName(lastName);
-            lg.setAddress(street, city, postCode);
+            ac.setFirstName(firstName);
+            ac.setLastName(lastName);
+            ac.setEmail(email);
+            ac.setAddress(street, city, postCode);
             User myUser = new User();
             myUser.setCluster(cluster);
-            boolean added = myUser.setAccountInfo(lg);
+            boolean added = myUser.setAccountInfo(ac, lg.getUsername());
             if (added) {
                 Message m = new Message();
                 m.setMessageTitle("Account Updated");

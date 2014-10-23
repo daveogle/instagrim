@@ -23,6 +23,7 @@
             <%
                 String UserName = "";
                 LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+                AccountBean ac = (AccountBean) request.getAttribute("AccountInfo");
                 if (lg == null || !lg.getlogedin()) {%>
             <div class="homeMenu">
                 <h3>Please register as a new user or login </h3>
@@ -49,25 +50,28 @@
             <form method="POST" name="AccountUpdate" action="Account">
                 <ul>
                     <li>User: <%=UserName%> </li>
-                    <li>First Name: <%=lg.getFirstName()%>  (<a title="edit_first_name" href="#" onclick="editAccount('firstName');
+                    <li>First Name: <%=ac.getFirstName()%>  (<a title="edit_first_name" href="#" onclick="editAccount('firstName');
                             return false">Edit</a>)</li>
-                    <input id="firstName" name="firstName" value="<%=lg.getFirstName()%>" type="text" style="display: none"><input id="firstNameButton" type="submit" value="Update" style="display: none">
-                    <li>Last Name : <%=lg.getLastName()%>   (<a title="edit_last_name" href="#" onclick="editAccount('lastName');
+                    <input id="firstName" name="firstName" value="<%=ac.getFirstName()%>" type="text" style="display: none"><input id="firstNameButton" type="submit" value="Update" style="display: none">
+                    <li>Last Name: <%=ac.getLastName()%>   (<a title="edit_last_name" href="#" onclick="editAccount('lastName');
                             return false">Edit</a>)</li>
-                    <input id="lastName" name="lastName" value="<%=lg.getLastName()%>" type="text" style="display: none"><input id="lastNameButton" type="submit" value="Update" style="display: none">
+                    <input id="lastName" name="lastName" value="<%=ac.getLastName()%>" type="text" style="display: none"><input id="lastNameButton" type="submit" value="Update" style="display: none">
+                    <li>Email: <%=ac.getEmail()%>   (<a title="edit_email" href="#" onclick="editAccount('email');
+                            return false">Edit</a>)</li>
+                    <input id="email" name="email" value="<%=ac.getEmail()%>" type="text" style="display: none"><input id="emailButton" type="submit" value="Update" style="display: none">
                     </br>
                     <li><strong>Address</strong>    (<a title="edit_account" href="#" onclick="editAccount('address');
                             return false">Edit</a>)</li>
-                    <li><%=lg.getAddress()%></li>
+                    <li><%=ac.getAddress()%></li>
                 </ul>
                 <div id="address" style="display: none">
                     <ul>
                         <li>Street</li>
-                        <input name="Street" type="text" value="<%=lg.getStreet()%>">
+                        <input name="Street" type="text" value="<%=ac.getStreet()%>">
                         <li>City</li>
-                        <input name="City" type="text" value="<%=lg.getCity()%>">
+                        <input name="City" type="text" value="<%=ac.getCity()%>">
                         <li>Post Code</li>
-                        <input name="PostCode" type="text" value="<%=lg.getPostCode()%>"><input id="addressButton" type="submit" value="Update">
+                        <input name="PostCode" type="text" value="<%=ac.getPostCode()%>"><input id="addressButton" type="submit" value="Update">
                     </ul>
                 </div>
             </form>
@@ -76,7 +80,7 @@
             }
         %>
         <footer>
-                <p>&COPY; Andy C</p>
+            <p>&COPY; Andy C</p>
         </footer>
     </body>
 </html>
