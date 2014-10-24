@@ -22,7 +22,7 @@ public final class Keyspaces {
                     + " processed blob,"
                     + " imagelength int,"
                     + " thumblength int,"
-                    + "  processedlength int,"
+                    + " processedlength int,"
                     + " type  varchar,"
                     + " name  varchar,"
                     + " PRIMARY KEY (picid)"
@@ -30,6 +30,18 @@ public final class Keyspaces {
 
             String CreateIndex = "CREATE INDEX ON instagrim.Pics (user)";
 
+            String CreateAvatarTable = "CREATE TABLE if not exists instagrim.avatar ("
+                    + " user varchar,"
+                    + " picid uuid, "
+                    + " image blob,"
+                    + " thumb blob,"
+                    + " imagelength int,"
+                    + " thumblength int,"
+                    + " type varchar,"
+                    + " name varchar,"
+                    + " PRIMARY KEY (picid, user)"
+                    + ") WITH CLUSTERING ORDER BY (user desc);";
+            
             String Createcommentlist = "CREATE TABLE if not exists instagrim.commentlist (\n"
                     + "commentid uuid,\n"
                     + "picid uuid,\n"
@@ -102,6 +114,14 @@ public final class Keyspaces {
             }
             System.out.println("" + CreateIndex);
 
+            try{
+                SimpleStatement cqlQuery = new SimpleStatement(CreateAvatarTable);
+                session.execute(cqlQuery);
+            }catch(Exception et)
+            {
+                System.out.println("" + CreateAvatarTable);
+            }
+            
             try {
                 SimpleStatement cqlQuery = new SimpleStatement(Createuserpiclist);
                 session.execute(cqlQuery);

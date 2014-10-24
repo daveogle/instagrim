@@ -55,6 +55,27 @@ public class PicModel {
         }
     }
 
+    public boolean setAvatar(byte[] b, String type, String name, String user) throws IOException {
+        try {
+            String types[] = Convertors.SplitFiletype(type);
+            int length = b.length;
+            java.util.UUID picid = Convertors.getTimeUUID();
+            byte[] thumbb = picresize(picid.toString(), types[1], b);
+            int thumblength = thumbb.length;
+            ByteBuffer thumbbuf = ByteBuffer.wrap(thumbb);
+            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            ByteBuffer buffer = ByteBuffer.wrap(b);
+            PreparedStatement psInsertAvatar = session.prepare("insert into avatar (picid, image, thumb, user, imagelength, thumblength, type, name) values(?,?,?,?,?,?,?,?)");
+            BoundStatement bsInsertAvatar = new BoundStatement(psInsertAvatar);
+            session.execute(bsInsertAvatar.bind(picid, buffer, thumbbuf, user, length, thumblength, type, name));
+            session.close();
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error --> " + e);
+        }
+        return false;
+    }
+
     public boolean insertPic(byte[] b, String type, String name, String user) throws IOException {
         try {
             String types[] = Convertors.SplitFiletype(type);
@@ -72,7 +93,7 @@ public class PicModel {
                 /*
                  Insert the picture into the keyspaces pics & userpiclist
                  */
-                PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image,thumb,processed, user, interaction_time,imagelength,thumblength,processedlength,type,name) values(?,?,?,?,?,?,?,?,?,?,?)");
+                PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image, thumb, processed, user, interaction_time, imagelength, thumblength, processedlength, type, name) values(?,?,?,?,?,?,?,?,?,?,?)");
                 PreparedStatement psInsertPicToUser = session.prepare("insert into userpiclist ( picid, user, pic_added) values(?,?,?)");
                 BoundStatement bsInsertPic = new BoundStatement(psInsertPic);
                 BoundStatement bsInsertPicToUser = new BoundStatement(psInsertPicToUser);
@@ -309,9 +330,38 @@ public class PicModel {
         session.close();
         Pic p = new Pic();
         p.setPic(bImage, length, type);
-
         return p;
-
     }
 
+    public Pic getAvatar(String userName) {
+        try {
+            Session session = cluster.connect("instagrim");
+            ByteBuffer bImage = null;
+            String type = null;
+            int length = 0;
+            Convertors convertor = new Convertors();
+            ResultSet rs = null;
+            PreparedStatement ps = null;
+            ps = session.prepare("select * from avatar where user =? ALLOW FILTERING");
+            BoundStatement boundStatement = new BoundStatement(ps);
+            rs = session.execute(boundStatement.bind(userName));
+            if (rs.isExhausted()) {
+                System.out.println("No Images returned");
+                return null;
+            } else {
+                for (Row row : rs) {
+                    bImage = row.getBytes("thumb");
+                    length = row.getInt("thumblength");
+                    type = row.getString("type");
+                }
+            }
+            session.close();
+            Pic p = new Pic();
+            p.setPic(bImage, length, type);
+            return p;
+        } catch (Exception et) {
+            System.out.println("Can't get Pic" + et);
+            return null;
+        }
+    }
 }

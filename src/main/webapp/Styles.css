@@ -28,17 +28,20 @@ nav {
     border-radius: 25px;
 }
 
+img#avatar
+{
+    width : 60%;    
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+
 nav h3
 {
     padding : 20px;
     text-align: center;
 }
-
-
-.homeMenu
-{
-}
-
 .details{
     width: 25%;
     margin-bottom : 3%;
@@ -69,10 +72,6 @@ nav h3
     overflow: hidden;
     background: activecaption;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-}
-
-.commentsAll{
-
 }
 
 footer
