@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
@@ -113,6 +114,9 @@ public class Account extends HttpServlet {
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
         AccountBean ac = new AccountBean();
         if (lg != null && lg.getlogedin()) {
+            for (Part part : request.getParts()) {
+                System.out.println("Part Name " + part.getName());
+            }
             String firstName = request.getParameter("firstName");
             String lastName = request.getParameter("lastName");
             String email = request.getParameter("email");

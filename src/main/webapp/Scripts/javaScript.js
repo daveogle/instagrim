@@ -95,6 +95,11 @@ function deletePic(id, user)
     }
 }
 
+function selectAvatar()
+{
+    document.getElementById('upavatar').click();
+}
+
 function deleteComment(user, picId, commentId)
 {
     if (confirm("Are you sure you want to delete this comment?") === true) {

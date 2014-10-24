@@ -39,8 +39,8 @@
                 <li><a href="/Instagrim">Home</a></li>
                 <li><a href="/Instagrim/upload.jsp">Upload</a></li>
                 <li><a href="/Instagrim/Friends">Friends</a></li>    
-                <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
-                <li><a href="/Instagrim/DeleteList/<%=lg.getUsername()%>">Delete Image</a></li>
+                <li><a href="/Instagrim/Images/<%=UserName%>">My Images</a></li>
+                <li><a href="/Instagrim/DeleteList/<%=UserName%>">Delete Image</a></li>
                 <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
             </ul>
         </nav>
@@ -48,7 +48,8 @@
         <div class="details">
             <form method="POST" name="AccountUpdate" action="Account">
                 </br>
-                <a href="/Instagrim/Account"><img id="avatar" alt="User avatar picture" src="/Instagrim/Avatar"></a><br/>
+                <img id="avatar" title="Click to edit avatar" onclick="selectAvatar();" alt="User avatar picture" src="/Instagrim/Avatar"><br/>
+                <input type="file" onchange="this.form.submit();" id="upavatar">
                 <ul>
                     <li>User: <%=UserName%> </li>
                     <li>First Name: <%=ac.getFirstName()%>  (<a title="edit_first_name" href="#" onclick="editAccount('firstName');
