@@ -12,6 +12,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>InstaGrim: Account Page</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
     </head>
     <body>
@@ -46,10 +47,13 @@
         </nav>
         <h1>Accounts page</h1>
         <div class="details">
+            </br>
+            <img id="avatar" title="Click to edit avatar" onclick="selectAvatar();" alt="User avatar picture" src="/Instagrim/Avatar"><br/>
+            <form id="avatarForm" method="post" action="Avatar" enctype="multipart/form-data">
+                <input type="file" name="UpFile" style="display: none;" onchange="updateAvatar();" id="upavatar">
+                <input type="submit" value="" style="display: none;">
+            </form>
             <form method="POST" name="AccountUpdate" action="Account">
-                </br>
-                <img id="avatar" title="Click to edit avatar" onclick="selectAvatar();" alt="User avatar picture" src="/Instagrim/Avatar"><br/>
-                <input type="file" onchange="this.form.submit();" id="upavatar">
                 <ul>
                     <li>User: <%=UserName%> </li>
                     <li>First Name: <%=ac.getFirstName()%>  (<a title="edit_first_name" href="#" onclick="editAccount('firstName');

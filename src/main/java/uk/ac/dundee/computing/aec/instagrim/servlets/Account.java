@@ -5,7 +5,9 @@
  */
 package uk.ac.dundee.computing.aec.instagrim.servlets;
 
+import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 import com.datastax.driver.core.Cluster;
+import javax.servlet.annotation.MultipartConfig;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
+import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
 import uk.ac.dundee.computing.aec.instagrim.stores.AccountBean;
@@ -32,20 +35,21 @@ import uk.ac.dundee.computing.aec.instagrim.stores.*;
  * @author Dave Ogle
  */
 @WebServlet(name = "Account", urlPatterns = {"/Account", "/Avatar"})
+@MultipartConfig
 public class Account extends HttpServlet {
-
+    
     public Account() {
-
+        
     }
-
+    
     Cluster cluster = null;
-
+    
     @Override
     public void init(ServletConfig config) throws ServletException {
         // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
-
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -75,7 +79,7 @@ public class Account extends HttpServlet {
             dispatcher.forward(request, response);
         }
     }
-
+    
     public void displayAvatar(LoggedIn lg, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Pic p = lg.getAvatar();
         try (OutputStream out = response.getOutputStream()) {
@@ -98,6 +102,63 @@ public class Account extends HttpServlet {
             dispatcher.forward(request, response);
         }
     }
+    
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        AccountBean ac = new AccountBean();
+        try {
+            for (Part part : request.getParts()) {
+                String type = part.getContentType();
+                if (!type.startsWith("image")) {
+                    String t = "Bad Type Error";//e.getErrorType();
+                    String m = "Error you can only upload image files";//e.getErrorMessage();
+                    //error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
+                }
+                if (part.getSize() > 1500000) {//CHANGE FOR Avatar (SEE About putting inside @MultiPart Config
+                    String t = "File to large Error";//e.getErrorType();
+                    String m = "Error you can only upload images of upto 1500kb in size";//e.getErrorMessage();
+                    //error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
+                }
+                String filename = part.getSubmittedFileName();
+                InputStream is = request.getPart(part.getName()).getInputStream();
+                int i = is.available();
+                HttpSession session = request.getSession();
+                LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+                String username = null;
+                boolean add = false;
+                if (lg.getlogedin()) {
+                    username = lg.getUsername();
+                    if (i > 0) {
+                        byte[] b = new byte[i + 1];
+                        is.read(b);
+                        System.out.println("Length : " + b.length);
+                        PicModel tm = new PicModel();
+                        tm.setCluster(cluster);
+                        add = tm.updateAvatar(b, type, filename, username);//tm.setAvatar(b, type, type, username)//UPDATE A FIELD NEEDED
+                        Pic pic = tm.getAvatar(username);
+                        lg.setAvatar(pic);
+                        is.close();
+                    }
+                    Message m = new Message();
+                    if (add) {
+                        m.setMessageTitle("Account Updated");
+                        m.setMessage("Your Avatar has been successfully updated");
+                    } else {
+                        m.setMessageTitle("Account Error");
+                        m.setMessage("There was an error updating your Avatar");
+                    }
+                    m.setPageRedirectName("Accout");
+                    m.setPageRedirect("/Instagrim/Account");
+                    request.setAttribute("message", m);
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                    dispatcher.forward(request, response);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -110,13 +171,14 @@ public class Account extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String args[] = Convertors.SplitRequestPath(request);
+        if (args[1].equals("Avatar")) {
+            doPut(request, response);
+        }
         HttpSession session = request.getSession();
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
         AccountBean ac = new AccountBean();
         if (lg != null && lg.getlogedin()) {
-            for (Part part : request.getParts()) {
-                System.out.println("Part Name " + part.getName());
-            }
             String firstName = request.getParameter("firstName");
             String lastName = request.getParameter("lastName");
             String email = request.getParameter("email");

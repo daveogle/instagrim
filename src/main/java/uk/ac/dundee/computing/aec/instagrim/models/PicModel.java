@@ -76,6 +76,27 @@ public class PicModel {
         return false;
     }
 
+    public boolean updateAvatar(byte[] b, String type, String name, String user) throws IOException {
+        try {
+            String types[] = Convertors.SplitFiletype(type);
+            int length = b.length;
+            java.util.UUID picid = Convertors.getTimeUUID();
+            byte[] thumbb = picresize(picid.toString(), types[1], b);
+            int thumblength = thumbb.length;
+            ByteBuffer thumbbuf = ByteBuffer.wrap(thumbb);
+            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            ByteBuffer buffer = ByteBuffer.wrap(b);
+            PreparedStatement psUpdateAvatar = session.prepare("update avatar set image =?, thumb =?, imagelength =?, thumblength =?, type =?, name =? where user =?");
+            BoundStatement bsInsertAvatar = new BoundStatement(psUpdateAvatar);
+            session.execute(bsInsertAvatar.bind(buffer, thumbbuf, length, thumblength, type, name, user));
+            session.close();
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error --> " + e);
+            return false;
+        }
+    }
+
     public boolean insertPic(byte[] b, String type, String name, String user) throws IOException {
         try {
             String types[] = Convertors.SplitFiletype(type);
@@ -342,7 +363,7 @@ public class PicModel {
             Convertors convertor = new Convertors();
             ResultSet rs = null;
             PreparedStatement ps = null;
-            ps = session.prepare("select * from avatar where user =? ALLOW FILTERING");
+            ps = session.prepare("select * from avatar where user =?");
             BoundStatement boundStatement = new BoundStatement(ps);
             rs = session.execute(boundStatement.bind(userName));
             if (rs.isExhausted()) {

@@ -39,8 +39,8 @@ public final class Keyspaces {
                     + " thumblength int,"
                     + " type varchar,"
                     + " name varchar,"
-                    + " PRIMARY KEY (picid, user)"
-                    + ") WITH CLUSTERING ORDER BY (user desc);";
+                    + " PRIMARY KEY (user)"
+                    + ")";
             
             String Createcommentlist = "CREATE TABLE if not exists instagrim.commentlist (\n"
                     + "commentid uuid,\n"
