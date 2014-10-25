@@ -33,6 +33,8 @@
                 <%
                 } else {
                 %>
+                <h3>Logged In As: <%=lg.getUsername()%>!</h3>
+                <a href="/Instagrim/Account"><img id="avatar" alt="User avatar picture" src="/Instagrim/Avatar"></a><br/>
                 <ul>
                     <li><a href="/Instagrim/Friends">Friends</a></li>    
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
@@ -68,8 +70,8 @@
             </form>
         </article>
     </body>
-        <footer>
-                <p>&COPY; Andy C</p>
-        </footer>
+    <footer>
+        <p>&COPY; Andy C</p>
+    </footer>
 </body>
 </html>

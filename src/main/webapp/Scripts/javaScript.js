@@ -95,6 +95,15 @@ function deletePic(id, user)
     }
 }
 
+function selectAvatar()
+{
+    document.getElementById('upavatar').click();
+}
+//
+function updateAvatar()
+{
+    document.getElementById('avatarForm').submit();
+}
 function deleteComment(user, picId, commentId)
 {
     if (confirm("Are you sure you want to delete this comment?") === true) {

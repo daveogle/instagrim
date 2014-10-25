@@ -24,6 +24,8 @@
         </header>
 
         <nav>
+            <h3>Logged In As: <%=user%>!</h3>
+            <a href="/Instagrim/Account"><img id="avatar" alt="User avatar picture" src="/Instagrim/Avatar"></a><br/>
             <ul>
                 <%if (user.equals("Sample")) {%>
                 <li><a href="/Instagrim"> Home </a></li>

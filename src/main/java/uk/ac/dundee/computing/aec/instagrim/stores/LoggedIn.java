@@ -13,6 +13,7 @@ public class LoggedIn {
 
     private boolean logedin = false;
     private String Username = null;
+    private Pic avatar = null;
 
     public void LoggedIn() {
 
@@ -40,5 +41,19 @@ public class LoggedIn {
 
     public boolean getlogedin() {
         return logedin;
+    }
+
+    /**
+     * @return the avatar
+     */
+    public Pic getAvatar() {
+        return avatar;
+    }
+
+    /**
+     * @param avatar the avatar to set
+     */
+    public void setAvatar(Pic avatar) {
+        this.avatar = avatar;
     }
 }

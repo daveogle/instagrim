@@ -12,6 +12,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>InstaGrim: Account Page</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
     </head>
     <body>
@@ -25,28 +26,33 @@
                 LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
                 AccountBean ac = (AccountBean) request.getAttribute("AccountInfo");
                 if (lg == null || !lg.getlogedin()) {%>
-            <div class="homeMenu">
-                <h3>Please register as a new user or login </h3>
-                <ul> 
-                    <li><a href="/Instagrim">Home</a></li>
-                    <li><a href="/Instagrim/Register">Register</a></li>
-                    <li><a href="/Instagrim/Login">Login</a></li>  
-                </ul>
-                <%
-                } else {
-                    UserName = lg.getUsername();%>
-                <ul>
-                    <li><a href="/Instagrim">Home</a></li>
-                    <li><a href="/Instagrim/upload.jsp">Upload</a></li>
-                    <li><a href="/Instagrim/Friends">Friends</a></li>    
-                    <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
-                    <li><a href="/Instagrim/DeleteList/<%=lg.getUsername()%>">Delete Image</a></li>
-                    <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
-                </ul>
-            </div>
+            <h3>Please register as a new user or login </h3>
+            <ul> 
+                <li><a href="/Instagrim">Home</a></li>
+                <li><a href="/Instagrim/Register">Register</a></li>
+                <li><a href="/Instagrim/Login">Login</a></li>  
+            </ul>
+            <%
+            } else {
+                UserName = lg.getUsername();%>
+            </br>
+            <ul>
+                <li><a href="/Instagrim">Home</a></li>
+                <li><a href="/Instagrim/upload.jsp">Upload</a></li>
+                <li><a href="/Instagrim/Friends">Friends</a></li>    
+                <li><a href="/Instagrim/Images/<%=UserName%>">My Images</a></li>
+                <li><a href="/Instagrim/DeleteList/<%=UserName%>">Delete Image</a></li>
+                <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
+            </ul>
         </nav>
         <h1>Accounts page</h1>
         <div class="details">
+            </br>
+            <img id="avatar" title="Click to edit avatar" onclick="selectAvatar();" alt="User avatar picture" src="/Instagrim/Avatar"><br/>
+            <form id="avatarForm" method="post" action="Avatar" enctype="multipart/form-data">
+                <input type="file" name="UpFile" style="display: none;" onchange="updateAvatar();" id="upavatar">
+                <input type="submit" value="" style="display: none;">
+            </form>
             <form method="POST" name="AccountUpdate" action="Account">
                 <ul>
                     <li>User: <%=UserName%> </li>
