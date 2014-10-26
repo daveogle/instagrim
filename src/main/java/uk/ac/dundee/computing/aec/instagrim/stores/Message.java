@@ -16,37 +16,72 @@ public class Message {
    private String pageRedirect;
    private String pageRedirectName;
 
+   /**
+    * Constructor
+    */
    public Message() {
    }
 
+   /**
+    * 
+    * @return MessageTitle
+    */
    public String getMessageTitle() {
       return messageTitle;
    }
 
+   /**
+    * Set the message Title
+    * @param messageTitle 
+    */
    public void setMessageTitle(String messageTitle) {
       this.messageTitle = messageTitle;
    }
 
+   /**
+    * 
+    * @return the message
+    */
    public String getMessage() {
       return message;
    }
 
+   /**
+    * set the message
+    * @param message 
+    */
    public void setMessage(String message) {
       this.message = message;
    }
 
+   /**
+    * 
+    * @return the page redirect URL
+    */
    public String getPageRedirect() {
       return pageRedirect;
    }
 
+   /**
+    * Set the page redirect URL
+    * @param pageRedirect 
+    */
    public void setPageRedirect(String pageRedirect) {
       this.pageRedirect = pageRedirect;
    }
 
+   /**
+    * 
+    * @return the redirect Name
+    */
    public String getPageRedirectName() {
       return pageRedirectName;
    }
 
+   /**
+    * Set the redirect name
+    * @param pageRedirectName 
+    */
    public void setPageRedirectName(String pageRedirectName) {
       this.pageRedirectName = pageRedirectName;
    }

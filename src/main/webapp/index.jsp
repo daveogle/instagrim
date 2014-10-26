@@ -22,6 +22,7 @@
         </header>
         <nav>              
             <%
+                //Check if the use is logged in
                 LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
                 if (lg == null || !lg.getlogedin()) {%>
             <div class="homeMenu">
@@ -32,8 +33,7 @@
                     <li><a href="/Instagrim/Images/Sample">Sample Images</a></li>
                 </ul>
                 <%
-                } else {
-                    String UserName = lg.getUsername();%>
+                } else {%>
                 <h3>Welcome back <%=lg.getUsername()%>!</h3>
                 <a href="/Instagrim/Account"><img id="avatar" alt="User avatar picture" src="/Instagrim/Avatar"></a><br/>
                 <ul>

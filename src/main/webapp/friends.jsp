@@ -23,6 +23,7 @@
         </header>
         <nav>              
             <%
+                //Get users and friends list
                 String userName = "";
                 LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
                 java.util.LinkedList<String> users = (java.util.LinkedList<String>) request.getAttribute("users");
@@ -54,9 +55,11 @@
         </nav>
         <ul>
             <h1>Friends</h1>
+            <!--If you have no friends-->
             <%if (friendsList == null || friendsList.size() == 0) {%>
             <li>You have no friends :(</li>
                 <%} else {
+                    //List all friends
                     Iterator<String> iterator;
                     iterator = friendsList.iterator();
                     while (iterator.hasNext()) {
@@ -71,7 +74,8 @@
             <strong>Instagim user:</strong>
             <select name="userList">
                 <option value="#">Select a friend from list</option>
-                <%  Iterator<String> iterator;
+                <%//List all users who are not friends
+                    Iterator<String> iterator;
                     iterator = users.iterator();
 
                     while (iterator.hasNext()) {

@@ -24,11 +24,9 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
-import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
-import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
-import uk.ac.dundee.computing.aec.instagrim.models.User;
-import uk.ac.dundee.computing.aec.instagrim.stores.AccountBean;
+import uk.ac.dundee.computing.aec.instagrim.models.*;
 import uk.ac.dundee.computing.aec.instagrim.stores.*;
+import uk.ac.dundee.computing.aec.instagrim.Exceptions.*;
 
 /**
  *
@@ -37,37 +35,63 @@ import uk.ac.dundee.computing.aec.instagrim.stores.*;
 @WebServlet(name = "Account", urlPatterns = {"/Account", "/Avatar"})
 @MultipartConfig
 public class Account extends HttpServlet {
-    
+
+    /**
+     * Constructor
+     */
     public Account() {
-        
+
     }
-    
-    Cluster cluster = null;
-    
+
+    private Cluster cluster = null;
+
+    /**
+     *
+     * @param config
+     * @throws ServletException
+     */
     @Override
     public void init(ServletConfig config) throws ServletException {
-        // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
-    
+
+    /**
+     * Method to get the account details for display
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String args[] = Convertors.SplitRequestPath(request);
         HttpSession session = request.getSession();
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-        if (lg != null && lg.getlogedin()) {
+        if (lg != null && lg.getlogedin()) {//If the user is logged in
             if (args[1].equals("Avatar")) {
                 displayAvatar(lg, request, response);
                 return;
             }
-            User myUser = new User();
-            myUser.setCluster(cluster);
-            AccountBean ac = new AccountBean();
-            ac = myUser.getAccountInfo(ac, lg.getUsername());
-            request.setAttribute("AccountInfo", ac);
-            RequestDispatcher rd = request.getRequestDispatcher("account.jsp");
-            rd.forward(request, response);
+            try {
+                User myUser = new User();
+                myUser.setCluster(cluster);
+                AccountBean ac = new AccountBean();
+                ac = myUser.getAccountInfo(ac, lg.getUsername());//call the model
+                request.setAttribute("AccountInfo", ac);
+                RequestDispatcher rd = request.getRequestDispatcher("account.jsp");
+                rd.forward(request, response);
+            } catch (ServletException | IOException | AccountException e) {
+                Message m = new Message();
+                m.setMessageTitle("Loggin Error");
+                m.setMessage("There was an error accessing your account" + e.getMessage());
+                m.setPageRedirectName("Home");
+                m.setPageRedirect("index.jsp");
+                request.setAttribute("message", m);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+                dispatcher.forward(request, response);
+            }
         } else {
             Message m = new Message();
             m.setMessageTitle("Loggin Error");
@@ -79,7 +103,16 @@ public class Account extends HttpServlet {
             dispatcher.forward(request, response);
         }
     }
-    
+
+    /**
+     * Method to display the avatar of the user
+     *
+     * @param lg - loggedIn bean
+     * @param request -
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     public void displayAvatar(LoggedIn lg, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Pic p = lg.getAvatar();
         try (OutputStream out = response.getOutputStream()) {
@@ -91,10 +124,10 @@ public class Account extends HttpServlet {
             for (int length; (length = input.read(buffer)) > 0;) {
                 out.write(buffer, 0, length);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Message m = new Message();
-            m.setMessageTitle("I/O Error");
-            m.setMessage("Error displaying image");
+            m.setMessageTitle("Error :");
+            m.setMessage("Error displaying image" + e.getMessage());
             m.setPageRedirectName("Home");
             m.setPageRedirect("/Instagrim");
             request.setAttribute("message", m);
@@ -102,51 +135,53 @@ public class Account extends HttpServlet {
             dispatcher.forward(request, response);
         }
     }
-    
+
+    /**
+     * Method for update of Avatar info
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        AccountBean ac = new AccountBean();
+        Message m = new Message();
         try {
             for (Part part : request.getParts()) {
                 String type = part.getContentType();
-                if (!type.startsWith("image")) {
-                    String t = "Bad Type Error";//e.getErrorType();
-                    String m = "Error you can only upload image files";//e.getErrorMessage();
-                    //error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
-                }
-                if (part.getSize() > 1500000) {//CHANGE FOR Avatar (SEE About putting inside @MultiPart Config
-                    String t = "File to large Error";//e.getErrorType();
-                    String m = "Error you can only upload images of upto 1500kb in size";//e.getErrorMessage();
-                    //error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
-                }
-                String filename = part.getSubmittedFileName();
-                InputStream is = request.getPart(part.getName()).getInputStream();
-                int i = is.available();
-                HttpSession session = request.getSession();
-                LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-                String username = null;
-                boolean add = false;
-                if (lg.getlogedin()) {
-                    username = lg.getUsername();
-                    if (i > 0) {
-                        byte[] b = new byte[i + 1];
-                        is.read(b);
-                        System.out.println("Length : " + b.length);
-                        PicModel tm = new PicModel();
-                        tm.setCluster(cluster);
-                        add = tm.updateAvatar(b, type, filename, username);//tm.setAvatar(b, type, type, username)//UPDATE A FIELD NEEDED
-                        Pic pic = tm.getAvatar(username);
-                        lg.setAvatar(pic);
-                        is.close();
-                    }
-                    Message m = new Message();
-                    if (add) {
-                        m.setMessageTitle("Account Updated");
-                        m.setMessage("Your Avatar has been successfully updated");
+                if (!type.startsWith("image")) {//Check image type
+                    m.setMessageTitle("Bad Type Error");
+                    m.setMessage("Error you can only upload image files");
+                } else if (part.getSize() > 1500000) {//Check image size
+                    m.setMessageTitle("File to large Error");
+                    m.setMessage("Error you can only upload images of upto 1500kb in size");
+                } else {
+                    String filename = part.getSubmittedFileName();
+                    InputStream is = request.getPart(part.getName()).getInputStream();
+                    int i = is.available();
+                    HttpSession session = request.getSession();
+                    LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+                    String username = null;
+                    if (lg.getlogedin()) { //Check logged In
+                        username = lg.getUsername();
+                        if (i > 0) {
+                            byte[] b = new byte[i + 1];
+                            is.read(b);
+                            System.out.println("Length : " + b.length);
+                            PicModel tm = new PicModel();
+                            tm.setCluster(cluster);
+                            tm.updateAvatar(b, type, filename, username);
+                            Pic pic = tm.getAvatar(username);
+                            lg.setAvatar(pic);//Set the new avatar in the login bean
+                            is.close();
+                            m.setMessageTitle("Avatar Updated :");
+                            m.setMessage("Your avatar has been successfully updated");
+                        }
                     } else {
-                        m.setMessageTitle("Account Error");
-                        m.setMessage("There was an error updating your Avatar");
+                        m.setMessageTitle("Account Update Error: ");
+                        m.setMessage("You must be logged in to update your account");
                     }
                     m.setPageRedirectName("Accout");
                     m.setPageRedirect("/Instagrim/Account");
@@ -155,8 +190,15 @@ public class Account extends HttpServlet {
                     dispatcher.forward(request, response);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | AccountException e) {
             System.out.println(e);
+            m.setMessageTitle("Account Error :");
+            m.setMessage(e.getMessage());
+            m.setPageRedirectName("Accout");
+            m.setPageRedirect("account.jsp");
+            request.setAttribute("message", m);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+            dispatcher.forward(request, response);
         }
     }
 
@@ -173,26 +215,27 @@ public class Account extends HttpServlet {
             throws ServletException, IOException {
         String args[] = Convertors.SplitRequestPath(request);
         if (args[1].equals("Avatar")) {
-            doPut(request, response);
+            doPut(request, response);//Redirect avatar updates to doPUT method
+            return;
         }
-        HttpSession session = request.getSession();
-        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-        AccountBean ac = new AccountBean();
-        if (lg != null && lg.getlogedin()) {
-            String firstName = request.getParameter("firstName");
-            String lastName = request.getParameter("lastName");
-            String email = request.getParameter("email");
-            String street = request.getParameter("Street");
-            String city = request.getParameter("City");
-            String postCode = request.getParameter("PostCode");
-            ac.setFirstName(firstName);
-            ac.setLastName(lastName);
-            ac.setEmail(email);
-            ac.setAddress(street, city, postCode);
-            User myUser = new User();
-            myUser.setCluster(cluster);
-            boolean added = myUser.setAccountInfo(ac, lg.getUsername());
-            if (added) {
+        try {
+            HttpSession session = request.getSession();
+            LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+            AccountBean ac = new AccountBean();
+            if (lg != null && lg.getlogedin()) {
+                String firstName = request.getParameter("firstName");
+                String lastName = request.getParameter("lastName");
+                String email = request.getParameter("email");
+                String street = request.getParameter("Street");
+                String city = request.getParameter("City");
+                String postCode = request.getParameter("PostCode");
+                ac.setFirstName(firstName);//Set the infomation in the bean
+                ac.setLastName(lastName);
+                ac.setEmail(email);
+                ac.setAddress(street, city, postCode);
+                User myUser = new User();
+                myUser.setCluster(cluster);
+                myUser.setAccountInfo(ac, lg.getUsername());//Call the model
                 Message m = new Message();
                 m.setMessageTitle("Account Updated");
                 m.setMessage("Your account details have been successfully updated");
@@ -203,18 +246,18 @@ public class Account extends HttpServlet {
                 dispatcher.forward(request, response);
             } else {
                 Message m = new Message();
-                m.setMessageTitle("Account Error");
-                m.setMessage("There was an error in adding your account information");
+                m.setMessageTitle("Loggin Error");
+                m.setMessage("You must be logged in to update your account");
                 m.setPageRedirectName("Accout");
                 m.setPageRedirect("account.jsp");
                 request.setAttribute("message", m);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                 dispatcher.forward(request, response);
             }
-        } else {
+        } catch (AccountException | ServletException | IOException e) {
             Message m = new Message();
-            m.setMessageTitle("Loggin Error");
-            m.setMessage("You must be logged in to update your account");
+            m.setMessageTitle("Account Error :");
+            m.setMessage(e.getMessage());
             m.setPageRedirectName("Accout");
             m.setPageRedirect("account.jsp");
             request.setAttribute("message", m);
@@ -224,13 +267,13 @@ public class Account extends HttpServlet {
     }
 
     /**
-     * Returns a short description of the servlet.
+     * Called by the servlet container to indicate to a servlet that the servlet
+     * is being taken out of service. See {@link Servlet#destroy}.
      *
-     * @return a String containing servlet description
+     *
      */
     @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+    public void destroy() {
+        cluster.close();
+    }
 }

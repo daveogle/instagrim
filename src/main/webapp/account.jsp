@@ -22,9 +22,11 @@
         </header>
         <nav>              
             <%
+                //Set information for page
                 String UserName = "";
                 LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-                AccountBean ac = (AccountBean) request.getAttribute("AccountInfo");
+                AccountBean ac = new AccountBean();
+                ac = (AccountBean) request.getAttribute("AccountInfo");
                 if (lg == null || !lg.getlogedin()) {%>
             <h3>Please register as a new user or login </h3>
             <ul> 

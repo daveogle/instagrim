@@ -29,11 +29,12 @@
         <article>
             <h3>Register a new user</h3>
             <form name="register" onsubmit="return validateForm('register', 'username', 'password')" method="POST"  action="Register">
-                <% boolean a = false;
+                <% //Check if the user alread exists
+                    boolean userExists = false;
                     if (request.getAttribute("exists") != null) {
-                        a = (boolean) request.getAttribute("exists");
+                        userExists = (boolean) request.getAttribute("exists");
                     }
-                    if (a) {%>
+                    if (userExists) {%>
                 <p style="color:red"><b>That name already taken, please choose another... </b></p> 
                 <%}%>
                 <ul>

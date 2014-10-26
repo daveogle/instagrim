@@ -4,10 +4,18 @@ import com.datastax.driver.core.*;
 
 public final class Keyspaces {
 
+    /**
+     * Constructor
+     */
     public Keyspaces() {
 
     }
 
+    /**
+     * A method to create Tables if not already created
+     *
+     * @param c
+     */
     public static void SetUpKeySpaces(Cluster c) {
         try {
             //Add some keyspaces here
@@ -41,7 +49,7 @@ public final class Keyspaces {
                     + " name varchar,"
                     + " PRIMARY KEY (user)"
                     + ")";
-            
+
             String Createcommentlist = "CREATE TABLE if not exists instagrim.commentlist (\n"
                     + "commentid uuid,\n"
                     + "picid uuid,\n"
@@ -114,14 +122,13 @@ public final class Keyspaces {
             }
             System.out.println("" + CreateIndex);
 
-            try{
+            try {
                 SimpleStatement cqlQuery = new SimpleStatement(CreateAvatarTable);
                 session.execute(cqlQuery);
-            }catch(Exception et)
-            {
+            } catch (Exception et) {
                 System.out.println("" + CreateAvatarTable);
             }
-            
+
             try {
                 SimpleStatement cqlQuery = new SimpleStatement(Createuserpiclist);
                 session.execute(cqlQuery);

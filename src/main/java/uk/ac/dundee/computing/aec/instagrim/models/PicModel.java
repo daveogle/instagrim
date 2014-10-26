@@ -24,38 +24,65 @@ import static org.imgscalr.Scalr.*;
 import org.imgscalr.Scalr.Method;
 import uk.ac.dundee.computing.aec.instagrim.lib.*;
 import uk.ac.dundee.computing.aec.instagrim.stores.*;
+import uk.ac.dundee.computing.aec.instagrim.Exceptions.*;
 
+/**
+ * Class to handle interactions with database that involve pictures
+ *
+ * @author Administrator
+ */
 public class PicModel {
 
-    Cluster cluster;
+    private Cluster cluster;
 
+    /**
+     * Constructor
+     */
     public PicModel() {
-
     }
 
+    /**
+     *
+     * @param cluster
+     */
     public void setCluster(Cluster cluster) {
         this.cluster = cluster;
     }
 
-    public int hasPictures(String user) {
+    /**
+     * A method to check if the user has images in the database
+     *
+     * @param user
+     * @return
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public boolean hasPictures(String user) throws ImageException {
         try {
             Session session = cluster.connect("instagrim");//Connect to Instagrim db
             PreparedStatement psGetPics = session.prepare("select * from Pics where user =?");
-            ResultSet hasPictures = null;
+            ResultSet hasPictures;
             BoundStatement boundStatementPics = new BoundStatement(psGetPics);
             hasPictures = session.execute(boundStatementPics.bind(user));
             if (hasPictures.all().isEmpty()) {//If there are no pictures
-                return 0;//true
+                return false;
             } else {
-                return 1;//false
+                return true;
             }
         } catch (Exception e) {
-            System.out.println(e);
-            return -1;//Error code
+            throw new ImageException("Error accessing users Pictures" + e.getMessage());
         }
     }
 
-    public boolean setAvatar(byte[] b, String type, String name, String user) throws IOException {
+    /**
+     * Method to initially set a user Avatar
+     *
+     * @param b - byte array containing pic
+     * @param type - type of image
+     * @param name - name of image
+     * @param user - user name
+     * @throws IOException
+     */
+    public void setAvatar(byte[] b, String type, String name, String user) throws IOException {
         try {
             String types[] = Convertors.SplitFiletype(type);
             int length = b.length;
@@ -69,14 +96,23 @@ public class PicModel {
             BoundStatement bsInsertAvatar = new BoundStatement(psInsertAvatar);
             session.execute(bsInsertAvatar.bind(picid, buffer, thumbbuf, user, length, thumblength, type, name));
             session.close();
-            return true;
         } catch (Exception e) {
             System.out.println("Error --> " + e);
+            throw new IOException();
         }
-        return false;
     }
 
-    public boolean updateAvatar(byte[] b, String type, String name, String user) throws IOException {
+    /**
+     * Method to update an avatar
+     *
+     * @param b
+     * @param type
+     * @param name
+     * @param user
+     * @return
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.AccountException
+     */
+    public void updateAvatar(byte[] b, String type, String name, String user) throws AccountException {
         try {
             String types[] = Convertors.SplitFiletype(type);
             int length = b.length;
@@ -90,14 +126,22 @@ public class PicModel {
             BoundStatement bsInsertAvatar = new BoundStatement(psUpdateAvatar);
             session.execute(bsInsertAvatar.bind(buffer, thumbbuf, length, thumblength, type, name, user));
             session.close();
-            return true;
         } catch (Exception e) {
             System.out.println("Error --> " + e);
-            return false;
+            throw new AccountException(e.toString());
         }
     }
 
-    public boolean insertPic(byte[] b, String type, String name, String user) throws IOException {
+    /**
+     * A method to insert a picture into the database
+     *
+     * @param b
+     * @param type
+     * @param name
+     * @param user
+     * @throws ImageException
+     */
+    public void insertPic(byte[] b, String type, String name, String user) throws ImageException {
         try {
             String types[] = Convertors.SplitFiletype(type);
             int length = b.length;
@@ -108,32 +152,34 @@ public class PicModel {
             byte[] processedb = picdecolour(picid.toString(), types[1], b);
             ByteBuffer processedbuf = ByteBuffer.wrap(processedb);
             int processedlength = processedb.length;
-            try {
-                Session session = cluster.connect("instagrim");//Connect to Instagrim db
-                ByteBuffer buffer = ByteBuffer.wrap(b);
-                /*
-                 Insert the picture into the keyspaces pics & userpiclist
-                 */
-                PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image, thumb, processed, user, interaction_time, imagelength, thumblength, processedlength, type, name) values(?,?,?,?,?,?,?,?,?,?,?)");
-                PreparedStatement psInsertPicToUser = session.prepare("insert into userpiclist ( picid, user, pic_added) values(?,?,?)");
-                BoundStatement bsInsertPic = new BoundStatement(psInsertPic);
-                BoundStatement bsInsertPicToUser = new BoundStatement(psInsertPicToUser);
+            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            ByteBuffer buffer = ByteBuffer.wrap(b);
+            /*
+             Insert the picture into the keyspaces pics & userpiclist
+             */
+            PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image, thumb, processed, user, interaction_time, imagelength, thumblength, processedlength, type, name) values(?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement psInsertPicToUser = session.prepare("insert into userpiclist ( picid, user, pic_added) values(?,?,?)");
+            BoundStatement bsInsertPic = new BoundStatement(psInsertPic);
+            BoundStatement bsInsertPicToUser = new BoundStatement(psInsertPicToUser);
 
-                Date DateAdded = new Date();
-                session.execute(bsInsertPic.bind(picid, buffer, thumbbuf, processedbuf, user, DateAdded, length, thumblength, processedlength, type, name));
-                session.execute(bsInsertPicToUser.bind(picid, user, DateAdded));
-                session.close();
-            } catch (Exception ex) {
-                System.out.println("Error --> " + ex);
-            }
-            return true;
-        } catch (Exception ex) {
-            System.out.println("Error --> " + ex);
-            return false;
+            Date DateAdded = new Date();
+            session.execute(bsInsertPic.bind(picid, buffer, thumbbuf, processedbuf, user, DateAdded, length, thumblength, processedlength, type, name));
+            session.execute(bsInsertPicToUser.bind(picid, user, DateAdded));
+            session.close();
+        } catch (IOException | ImageException ex) {
+            throw new ImageException(ex.toString());
         }
     }
 
-    public void insertComment(String user, java.util.UUID picid, String commentToAdd) throws IOException {
+    /**
+     * Method to Add a new comment
+     *
+     * @param user
+     * @param picid
+     * @param commentToAdd
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public void insertComment(String user, java.util.UUID picid, String commentToAdd) throws ImageException {
         try {
             UUID commentId = UUID.randomUUID();
             Session session = cluster.connect("instagrim");//Connect to Instagrim db
@@ -144,10 +190,18 @@ public class PicModel {
             session.close();
         } catch (Exception e) {
             System.out.println("Error -->" + e);
+            throw new ImageException(e.toString());
         }
     }
 
-    public void deletePic(java.util.UUID picid, String user) throws NoHostAvailableException, IllegalArgumentException {
+    /**
+     * A method to delete a picture
+     *
+     * @param picid
+     * @param user
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public void deletePic(java.util.UUID picid, String user) throws ImageException {
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement getTimeStamp = session.prepare("select interaction_time from pics where picid =?");
@@ -165,27 +219,37 @@ public class PicModel {
             session.execute(bsDeletePic.bind(picid));
             session.execute(bsDeletePicFromUser.bind(user, timeStamp));
             session.close();
-        } catch (NoHostAvailableException | IllegalArgumentException e) {
-            //Do a thing
-        } finally {
-
+        } catch (Exception e) {
+            throw new ImageException(e.toString());
         }
     }
 
-    public boolean deleteComment(java.util.UUID picid, java.util.UUID commentId) {
+    /**
+     * Method to delete a comment
+     *
+     * @param picid
+     * @param commentId
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public void deleteComment(java.util.UUID picid, java.util.UUID commentId) throws ImageException {
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement psDeleteComment = session.prepare("DELETE FROM commentlist where commentid =? and  picid =?");
             BoundStatement bsDeleteComment = new BoundStatement(psDeleteComment);
             session.execute(bsDeleteComment.bind(commentId, picid));
             session.close();
-            return true;
         } catch (Exception e) {
-            return false;
+            throw new ImageException(e.toString());
         }
     }
 
-    public boolean deleteComments(java.util.UUID picid) {
+    /**
+     * A method to delete all comments from a pic
+     *
+     * @param picid
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public void deleteComments(java.util.UUID picid) throws ImageException {
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement getComments = session.prepare("select * from commentlist where picid =?");
@@ -198,12 +262,20 @@ public class PicModel {
                 }
             }
             session.close();
-            return true;
         } catch (Exception e) {
-            return false;
+            throw new ImageException(e.toString());
         }
     }
 
+    /**
+     * Method to resize an Image
+     *
+     * @param picid
+     * @param type
+     * @param b
+     * @return
+     * @throws IOException
+     */
     public byte[] picresize(String picid, String type, byte[] b) throws IOException {
         try {
             InputStream bais = new ByteArrayInputStream(b);
@@ -216,12 +288,20 @@ public class PicModel {
             baos.close();
             return imageInByte;
         } catch (IOException et) {
-            System.out.println(et);
+            throw new IOException();
         }
-        return null;
     }
 
-    public byte[] picdecolour(String picid, String type, byte[] b) {
+    /**
+     * A method to decolour the picture
+     *
+     * @param picid
+     * @param type
+     * @param b
+     * @return the pic as a byte array
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public byte[] picdecolour(String picid, String type, byte[] b) throws ImageException {
         try {
             InputStream bais = new ByteArrayInputStream(b);
             BufferedImage BI = ImageIO.read(bais);
@@ -232,30 +312,47 @@ public class PicModel {
             byte[] imageInByte = baos.toByteArray();
             baos.close();
             return imageInByte;
-        } catch (IOException et) {
-            System.out.println(et);
+        } catch (Exception et) {
+            throw new ImageException(et.toString());
         }
-        return null;
     }
 
+    /**
+     *
+     * @param img
+     * @return
+     */
     public static BufferedImage createThumbnail(BufferedImage img) {
         img = resize(img, Method.SPEED, 250, OP_ANTIALIAS, OP_GRAYSCALE);
         // add a little border before we return result.
         return pad(img, 2);
     }
 
+    /**
+     *
+     * @param img
+     * @return
+     */
     public static BufferedImage createProcessed(BufferedImage img) {
         int Width = img.getWidth() - 1;
         img = resize(img, Method.SPEED, Width, OP_ANTIALIAS, OP_GRAYSCALE);
         return pad(img, 4);
     }
 
-    public java.util.LinkedList<Pic> getPicsForUser(String User, boolean comments) {
+    /**
+     * Method to get a list of Pictures for the user
+     *
+     * @param User
+     * @param comments
+     * @return a list of pictures
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public java.util.LinkedList<Pic> getPicsForUser(String User, boolean comments) throws ImageException {
         java.util.LinkedList<Pic> Pics = new java.util.LinkedList<>();
         try {
             Session session = cluster.connect("instagrim");
             PreparedStatement picturePs = session.prepare("select picid from userpiclist where user =?");//Get the use pictures
-            ResultSet pictures = null;
+            ResultSet pictures;
             BoundStatement boundStatementPics = new BoundStatement(picturePs);
             pictures = session.execute( // this is where the query is executed
                     boundStatementPics.bind(User));
@@ -267,7 +364,7 @@ public class PicModel {
                     Pic pic = new Pic();
                     java.util.UUID UUID = row.getUUID("picid");
                     if (comments) {
-                        pic = getComments(session, pic, UUID);
+                        pic = getComments(session, pic, UUID);//get the comments for the picture
                     }
                     System.out.println("UUID" + UUID.toString());
                     pic.setUUID(UUID);
@@ -277,40 +374,57 @@ public class PicModel {
             session.close();
             return Pics;
         } catch (Exception e) {
-            return null;
+            throw new ImageException(e.toString());
         }
     }
 
-    private Pic getComments(Session session, Pic pic, java.util.UUID UUID) {
+    /**
+     * A method to get comments
+     *
+     * @param session
+     * @param pic
+     * @param UUID
+     * @return the Pic
+     */
+    private Pic getComments(Session session, Pic pic, java.util.UUID UUID) throws ImageException {
         ResultSet comments = null;
-        PreparedStatement commentPs = session.prepare("select * from commentlist where picid =?");//Get comments
-        BoundStatement boundStatementComments = new BoundStatement(commentPs);
-        comments = session.execute( // this is where the query is executed
-                boundStatementComments.bind(UUID));//Get all comments for the picture
-        if (!comments.isExhausted()) {
-            for (Row commentRow : comments) {
-                CommentBean newComment = new CommentBean();
-                newComment.setCommentID(commentRow.getUUID("commentid"));
-                newComment.setCommentor(commentRow.getString("user"));
-                newComment.setComment(commentRow.getString("comment"));
-                newComment.setCommentDate(commentRow.getDate("comment_added"));
-                pic.addComment(newComment);
+        try {
+            PreparedStatement commentPs = session.prepare("select * from commentlist where picid =?");
+            BoundStatement boundStatementComments = new BoundStatement(commentPs);
+            comments = session.execute(boundStatementComments.bind(UUID));
+            if (!comments.isExhausted()) {//if there are comments
+                for (Row commentRow : comments) {
+                    CommentBean newComment = new CommentBean();
+                    newComment.setCommentID(commentRow.getUUID("commentid"));
+                    newComment.setCommentor(commentRow.getString("user"));
+                    newComment.setComment(commentRow.getString("comment"));
+                    newComment.setCommentDate(commentRow.getDate("comment_added"));
+                    pic.addComment(newComment);
+                }
             }
+            return pic;
+        } catch (Exception e) {
+            throw new ImageException(e.toString());
         }
-        return pic;
     }
 
-//Get an idividual picture
-    public Pic getPic(int image_type, java.util.UUID picid) {
-        Session session = cluster.connect("instagrim");
+    /**
+     * A method to get a users picture
+     *
+     * @param image_type
+     * @param picid
+     * @return the Picture
+     * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.ImageException
+     */
+    public Pic getPic(int image_type, java.util.UUID picid) throws ImageException {
         ByteBuffer bImage = null;
         String type = null;
         int length = 0;
         try {
+            Session session = cluster.connect("instagrim");
             Convertors convertor = new Convertors();
-            ResultSet rs = null;
+            ResultSet rs;
             PreparedStatement ps = null;
-
             if (image_type == Convertors.DISPLAY_IMAGE) {
                 ps = session.prepare("select image,imagelength,type from pics where picid =?");
             } else if (image_type == Convertors.DISPLAY_THUMB) {
@@ -319,9 +433,7 @@ public class PicModel {
                 ps = session.prepare("select processed,processedlength,type from pics where picid =?");
             }
             BoundStatement boundStatement = new BoundStatement(ps);
-            rs = session.execute( // this is where the query is executed
-                    boundStatement.bind( // here you are binding the 'boundStatement'
-                            picid));
+            rs = session.execute(boundStatement.bind(picid));
 
             if (rs.isExhausted()) {
                 System.out.println("No Images returned");
@@ -339,21 +451,24 @@ public class PicModel {
                         bImage = row.getBytes("processed");
                         length = row.getInt("processedlength");
                     }
-
                     type = row.getString("type");
-
                 }
             }
+            session.close();
         } catch (Exception et) {
-            System.out.println("Can't get Pic" + et);
-            return null;
+            throw new ImageException(et.toString());
         }
-        session.close();
         Pic p = new Pic();
         p.setPic(bImage, length, type);
         return p;
     }
 
+    /**
+     * Method to return the user avatar
+     *
+     * @param userName
+     * @return the user avatar
+     */
     public Pic getAvatar(String userName) {
         try {
             Session session = cluster.connect("instagrim");
@@ -381,7 +496,7 @@ public class PicModel {
             p.setPic(bImage, length, type);
             return p;
         } catch (Exception et) {
-            System.out.println("Can't get Pic" + et);
+            System.out.println("Error retriving avatar" + et);
             return null;
         }
     }

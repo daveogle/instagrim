@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uk.ac.dundee.computing.aec.instagrim.exceptions;
-
-import javax.servlet.ServletException;
+package uk.ac.dundee.computing.aec.instagrim.Exceptions;
 
 /**
  *
  * @author Dave Ogle
  */
-public class BadTypeException extends ServletException {
+public class ImageException extends Exception {
+
+    public ImageException(String message) {
+        super(message);
+    }
 }

@@ -63,7 +63,7 @@ public class AccountBean {
     }
 
     /**
-     *
+     * Set the address
      * @param street
      * @param city
      * @param postCode
@@ -85,7 +85,9 @@ public class AccountBean {
      * @param email the email to set
      */
     public void setEmail(String email) {
-        this.email = email;
+        if (email != null) {
+            this.email = email;
+        }
     }
 
     /**

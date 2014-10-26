@@ -16,6 +16,7 @@
     </head>
     <body>
         <% boolean registered = false;
+        //Check if the user has registered
             if (request.getAttribute("registered") != null) {
                 registered = (boolean) request.getAttribute("registered");
             }%>
@@ -40,12 +41,13 @@
         <article>
             <h3>Login</h3>
             <form method="POST" name="login" onsubmit="return validateForm('login', 'username', 'password')" action="Login">
-                <% boolean a = false;
+                <% boolean notAUser = false;
+                //Check if the person logging in is a user already
                     if (request.getAttribute("notAUser") != null) {
-                        a = (boolean) request.getAttribute("notAUser");
+                        notAUser = (boolean) request.getAttribute("notAUser");
                     }
-                    if (a) {%>
-                <p style="color:red"><b>That username does not exist, please try again or register a new user... </b></p> 
+                    if (notAUser) {%>
+                    <p style="color:red"><b>That username does not exist, please try again or <a href="/Instagrim/Register">register</a> a new user... </b></p> 
                 <%}%>
                 <ul>
                     <li>User Name <input type="text" name="username"></li>

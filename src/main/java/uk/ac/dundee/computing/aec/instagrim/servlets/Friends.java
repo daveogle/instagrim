@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import uk.ac.dundee.computing.aec.instagrim.Exceptions.FriendException;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
@@ -27,11 +28,15 @@ import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 @WebServlet(name = "Friends", urlPatterns = {"/Friends"})
 public class Friends extends HttpServlet {
 
-    Cluster cluster = null;
+    private Cluster cluster = null;
 
+    /**
+     *
+     * @param config
+     * @throws ServletException
+     */
     @Override
     public void init(ServletConfig config) throws ServletException {
-        // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
 
@@ -49,20 +54,20 @@ public class Friends extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-        if (lg != null && lg.getlogedin()) {
+        if (lg != null && lg.getlogedin()) {//If logged in
             try {
                 User us = new User();
                 us.setCluster(cluster);
                 java.util.LinkedList<String> users = us.getUsers(lg.getUsername());//Returns all the users as a linked list
-                java.util.List<String> friends = us.getFriendList(lg.getUsername());
+                java.util.List<String> friends = us.getFriendList(lg.getUsername());//Returns all the friends as a linked list
                 request.setAttribute("users", users);
                 request.setAttribute("friends", friends);
                 RequestDispatcher rd = request.getRequestDispatcher("friends.jsp");
                 rd.forward(request, response);
-            } catch (Exception e) {
+            } catch (FriendException | ServletException | IOException e) {
                 Message m = new Message();
                 m.setMessageTitle("Error");
-                m.setMessage("There was an error accessing your friends");
+                m.setMessage("There was an error accessing your friends: \n" + e.getMessage());
                 m.setPageRedirectName("Home");
                 m.setPageRedirect("/Instagrim");
                 request.setAttribute("message", m);
@@ -82,7 +87,7 @@ public class Friends extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles adding of friends Handles the HTTP <code>POST</code> method.
      *
      * @param request servlet request
      * @param response servlet response
@@ -93,14 +98,14 @@ public class Friends extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String friend = request.getParameter("userList");
-        HttpSession session = request.getSession();
-        User us = new User();
-        LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
-        if (lg != null && lg.getlogedin()) {
-            try {
+        try {
+            HttpSession session = request.getSession();
+            User us = new User();
+            LoggedIn lg = (LoggedIn) session.getAttribute("LoggedIn");
+            if (lg != null && lg.getlogedin()) {//Check if user is logged in
                 us.setCluster(cluster);
-                boolean added = us.addFriend(lg.getUsername(), friend);
-                added = us.addFriend(friend, lg.getUsername());
+                us.addFriend(lg.getUsername(), friend);//add the friend
+                us.addFriend(friend, lg.getUsername());//add the user to the friend's friend list
                 Message m = new Message();
                 m.setMessageTitle("Friend Added");
                 m.setMessage(friend + " was added as a friend");
@@ -109,20 +114,20 @@ public class Friends extends HttpServlet {
                 request.setAttribute("message", m);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                 dispatcher.forward(request, response);
-            } catch (Exception e) {
+            } else {
                 Message m = new Message();
                 m.setMessageTitle("Friend Error");
-                m.setMessage("An error occured adding your Friend");
+                m.setMessage("You must be logged in to add Friends");
                 m.setPageRedirectName("Home");
                 m.setPageRedirect("index.jsp");
                 request.setAttribute("message", m);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                 dispatcher.forward(request, response);
             }
-        } else {
+        } catch (FriendException | ServletException | IOException e) {
             Message m = new Message();
             m.setMessageTitle("Friend Error");
-            m.setMessage("You must be logged in to add Friends");
+            m.setMessage("An error occured adding your Friend: " + e.getMessage());
             m.setPageRedirectName("Home");
             m.setPageRedirect("index.jsp");
             request.setAttribute("message", m);
@@ -130,27 +135,15 @@ public class Friends extends HttpServlet {
             dispatcher.forward(request, response);
         }
     }
-
-    public java.util.List<String> getFriends(String username) {
-        java.util.List<String> friendList = new java.util.LinkedList<>();
-        User us = new User();
-        try {
-            us.setCluster(cluster);
-            friendList = us.getFriendList(username);
-        } catch (Exception e) {
-
-        }
-        return friendList;
-    }
-
-    /**
-     * Returns a short description of the servlet.
+    
+        /**
+     * Called by the servlet container to indicate to a servlet that the servlet
+     * is being taken out of service. See {@link Servlet#destroy}.
      *
-     * @return a String containing servlet description
+     *
      */
     @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+    public void destroy() {
+        cluster.close();
+    }
 }

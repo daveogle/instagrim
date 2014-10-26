@@ -39,7 +39,7 @@
                     <li><a href="/Instagrim/Friends">Friends</a></li>    
                     <li><a href="/Instagrim/Images/<%=lg.getUsername()%>">My Images</a></li>
                     <li><a href="/Instagrim/DeleteList/<%=lg.getUsername()%>">Delete Image</a></li>
-                    <li><a href="/Instagrim/account.jsp">My Account</a></li>
+                    <li><a href="/Instagrim/Account">My Account</a></li>
                     <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
                 </ul>
             </div>

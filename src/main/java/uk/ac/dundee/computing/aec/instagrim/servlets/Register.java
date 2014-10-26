@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import javax.servlet.RequestDispatcher;
-//import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,9 +21,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import uk.ac.dundee.computing.aec.instagrim.Exceptions.*;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
 import uk.ac.dundee.computing.aec.instagrim.models.User;
+import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 
 /**
  *
@@ -35,12 +36,24 @@ public class Register extends HttpServlet {
 
     Cluster cluster = null;
 
+    /**
+     *
+     * @param config
+     * @throws ServletException
+     */
     @Override
     public void init(ServletConfig config) throws ServletException {
-        // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
 
+    /**
+     * Overridden doGET request forwards the user to register.jsp page.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher rd = request.getRequestDispatcher("/register.jsp");
@@ -48,7 +61,8 @@ public class Register extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. Method called when user
+     * registers a new user
      *
      * @param request servlet request
      * @param response servlet response
@@ -58,29 +72,45 @@ public class Register extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
         User us = new User();
-        us.setCluster(cluster);
-        boolean exists = us.IsValidUser(username, password);
-        if (exists == true) { //if the user alread exists in the database
-            RequestDispatcher rd = request.getRequestDispatcher("/register.jsp");
-            request.setAttribute("exists", exists);
-            rd.forward(request, response);
-        } else {
-            boolean registered = us.RegisterUser(username, password);
-            if (registered) {//If successfully registered (CHECK THIS IS DONE PROPERLY AT THE MODEL END
-                uploadDefaultAvatar(username);
-                RequestDispatcher rd = request.getRequestDispatcher("/login.jsp");
-                request.setAttribute("registered", true);
+        try {
+            us.setCluster(cluster);
+            boolean exists = us.IsValidUser(username, password);
+            if (exists == true) { //if the user alread exists in the database
+                RequestDispatcher rd = request.getRequestDispatcher("/register.jsp");
+                request.setAttribute("exists", exists);
                 rd.forward(request, response);
             } else {
-                //Forward to message page
+                boolean registered = us.RegisterUser(username, password);
+                if (registered) {//If successfully registered
+                    uploadDefaultAvatar(username);
+                    RequestDispatcher rd = request.getRequestDispatcher("/login.jsp");//Redirect to Login page
+                    request.setAttribute("registered", true);
+                    rd.forward(request, response);
+                }
             }
+        } catch (RegisterException | ServletException | IOException e) {
+            Message m = new Message();
+            m.setMessageTitle("Error: ");
+            m.setMessage(e.getMessage());
+            m.setPageRedirectName("Home");
+            m.setPageRedirect("/");
+            request.setAttribute("message", m);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+            dispatcher.forward(request, response);
         }
     }
 
+    /**
+     * Method to upload the default avatar for a new user
+     *
+     * @param userName
+     * @throws IOException
+     */
     public void uploadDefaultAvatar(String userName) throws IOException {
         try {
             String avatarName = "defaultAvatar.png";
@@ -91,23 +121,25 @@ public class Register extends HttpServlet {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage, "png", baos);
             byte[] imageInByte = baos.toByteArray();
-            PicModel tm = new PicModel();
-            tm.setCluster(cluster);
-            tm.setAvatar(imageInByte, type, "Avatar", userName);
+            PicModel pm = new PicModel();
+            pm.setCluster(cluster);
+            pm.setAvatar(imageInByte, type, "Avatar", userName);
             bais.close();
         } catch (Exception e) {
             System.out.println(e);
+            throw new IOException();
         }
     }
-
-    /**
-     * Returns a short description of the servlet.
+    
+        /**
+     * Called by the servlet container to indicate to a servlet that the servlet
+     * is being taken out of service. See {@link Servlet#destroy}.
      *
-     * @return a String containing servlet description
+     *
      */
+    
     @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+    public void destroy() {
+        cluster.close();
+    }
 }

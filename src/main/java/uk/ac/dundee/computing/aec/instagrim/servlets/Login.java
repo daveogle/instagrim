@@ -15,10 +15,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import uk.ac.dundee.computing.aec.instagrim.Exceptions.*;
 import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
 import uk.ac.dundee.computing.aec.instagrim.models.*;
 import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
 import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
+import uk.ac.dundee.computing.aec.instagrim.stores.Message;
 
 /**
  *
@@ -26,15 +28,26 @@ import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
  */
 @WebServlet(name = "Login", urlPatterns = {"/Login"})
 public class Login extends HttpServlet {
-    
+
     Cluster cluster = null;
-    
+
+    /**
+     *
+     * @param config
+     * @throws ServletException
+     */
     @Override
     public void init(ServletConfig config) throws ServletException {
-        // TODO Auto-generated method stub
         cluster = CassandraHosts.getCluster();
     }
-    
+
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
@@ -52,44 +65,53 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        
-        User us = new User();
-        us.setCluster(cluster);
-        boolean isValid = us.IsValidUser(username, password);
-        HttpSession session = request.getSession();
-        System.out.println("Session in servlet " + session);
-        if (isValid) {
-            LoggedIn lg = new LoggedIn();
-            lg.setLogedin();
-            lg.setUsername(username);
-            PicModel pm = new PicModel();
-            pm.setCluster(cluster);
-            Pic avatar = pm.getAvatar(username);
-            lg.setAvatar(avatar);
-            session.setAttribute("LoggedIn", lg);
-            System.out.println("Session in servlet " + session);
-            RequestDispatcher rd = request.getRequestDispatcher("/");
-            rd.forward(request, response);
-            
-        } else {
-            request.setAttribute("notAUser", true);
-            RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
-            rd.forward(request, response);
+
+        try {
+            User us = new User();
+            us.setCluster(cluster);
+            boolean isValid = us.IsValidUser(username, password);//Check if a valid user
+            HttpSession session = request.getSession();
+            if (isValid) {
+                LoggedIn lg = new LoggedIn(); //Set the users login details for the session
+                lg.setLogedin();
+                lg.setUsername(username);
+                PicModel pm = new PicModel();
+                pm.setCluster(cluster);
+                Pic avatar = pm.getAvatar(username);
+                lg.setAvatar(avatar);
+                session.setAttribute("LoggedIn", lg);
+                System.out.println("Session in servlet " + session);
+                RequestDispatcher rd = request.getRequestDispatcher("/");
+                rd.forward(request, response);
+            } else {
+                request.setAttribute("notAUser", true);
+                RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
+                rd.forward(request, response);
+            }
+        } catch (RegisterException | ServletException | IOException e) {
+            Message m = new Message();
+            m.setMessageTitle("Login Error: ");
+            m.setMessage(e.getMessage());
+            m.setPageRedirectName("Home");
+            m.setPageRedirect("index.jsp");
+            request.setAttribute("message", m);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
+            dispatcher.forward(request, response);
         }
-        
+
     }
 
     /**
-     * Returns a short description of the servlet.
+     * Called by the servlet container to indicate to a servlet that the servlet
+     * is being taken out of service. See {@link Servlet#destroy}.
      *
-     * @return a String containing servlet description
+     *
      */
     @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+    public void destroy() {
+        cluster.close();
+    }
 }

@@ -2,24 +2,31 @@ package uk.ac.dundee.computing.aec.instagrim.lib;
 
 import java.net.URLDecoder;
 import java.util.StringTokenizer;
-//import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
-import com.eaio.uuid.UUID;
 
 public final class Convertors {
-    public static int DISPLAY_IMAGE=0;
-    public static int DISPLAY_THUMB=1;
-    public static int DISPLAY_PROCESSED=2;
+
+    public static int DISPLAY_IMAGE = 0;
+    public static int DISPLAY_THUMB = 1;
+    public static int DISPLAY_PROCESSED = 2;
+
     public void Convertors() {
 
     }
 
+    /**
+     *
+     * @return the UUID
+     */
     public static java.util.UUID getTimeUUID() {
         return java.util.UUID.fromString(new com.eaio.uuid.UUID().toString());
     }
-    
-    
 
+    /**
+     *
+     * @param uuid
+     * @return byte Array
+     */
     public static byte[] asByteArray(java.util.UUID uuid) {
 
         long msb = uuid.getMostSignificantBits();
@@ -36,6 +43,11 @@ public final class Convertors {
         return buffer;
     }
 
+    /**
+     * 
+     * @param value
+     * @return byteArray
+     */
     public static byte[] longToByteArray(long value) {
         byte[] buffer = new byte[8]; //longs are 8 bytes I believe
         for (int i = 7; i >= 0; i--) { //fill from the right
@@ -47,6 +59,11 @@ public final class Convertors {
         return buffer;
     }
 
+    /**
+     * 
+     * @param buffer
+     * @return long
+     */
     public static long byteArrayToLong(byte[] buffer) {
         long value = 0;
         long multiplier = 1;
@@ -59,6 +76,10 @@ public final class Convertors {
         return value;
     }
 
+    /**
+     * 
+     * @param buffer 
+     */
     public static void displayByteArrayAsHex(byte[] buffer) {
         int byteArrayLength = buffer.length;
         for (int i = 0; i < byteArrayLength; i++) {
@@ -66,9 +87,15 @@ public final class Convertors {
             // System.out.print(Integer.toHexString(val)+",");
         }
 
-	  //System.out.println();
+        //System.out.println();
     }
 
+    /**
+     * 
+     * @param arr
+     * @param start
+     * @return long
+     */
 //From: http://www.captain.at/howto-java-convert-binary-data.php
     public static long arr2long(byte[] arr, int start) {
         int i = 0;
@@ -88,6 +115,11 @@ public final class Convertors {
         return accum;
     }
 
+    /**
+     * 
+     * @param Tags
+     * @return String array
+     */
     public static String[] SplitTags(String Tags) {
         String args[] = null;
 
@@ -115,7 +147,7 @@ public final class Convertors {
 
         StringTokenizer st = SplitString(type);
         args = new String[st.countTokens()];
-		//Lets assume the number is the last argument
+        //Lets assume the number is the last argument
 
         int argv = 0;
         while (st.hasMoreTokens()) {;
@@ -132,17 +164,17 @@ public final class Convertors {
             argv++;
         }
 
-	//so now they'll be in the args array.  
+        //so now they'll be in the args array.  
         // argv[0] should be the user directory
         return args;
     }
-    
+
     public static String[] SplitRequestPath(HttpServletRequest request) {
         String args[] = null;
 
         StringTokenizer st = SplitString(request.getRequestURI());
         args = new String[st.countTokens()];
-		//Lets assume the number is the last argument
+        //Lets assume the number is the last argument
 
         int argv = 0;
         while (st.hasMoreTokens()) {;
@@ -159,7 +191,7 @@ public final class Convertors {
             argv++;
         }
 
-	//so now they'll be in the args array.  
+        //so now they'll be in the args array.  
         // argv[0] should be the user directory
         return args;
     }
