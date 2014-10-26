@@ -45,7 +45,7 @@ public class Logout extends HttpServlet {
             m.setMessageTitle("Logged Out Error: ");
             m.setMessage("An error ocurred logging out" + e.getMessage());
         }
-        m.setPageRedirect("/Instagrim");
+        m.setPageRedirect("/Instagrim-dao");
         m.setPageRedirectName("Home");
         request.setAttribute("message", m);
         RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");

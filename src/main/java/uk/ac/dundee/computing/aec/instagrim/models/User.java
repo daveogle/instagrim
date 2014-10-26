@@ -46,7 +46,7 @@ public class User {
         try {
             String EncodedPassword = null;
             EncodedPassword = AeSimpleSHA1.SHA1(Password);
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement ps = session.prepare("insert into userprofiles (login,password) Values(?,?)");
             BoundStatement boundStatement = new BoundStatement(ps);
             session.execute(boundStatement.bind(username, EncodedPassword));
@@ -75,7 +75,7 @@ public class User {
             throw new RegisterException((et.toString()));
         }
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement ps = session.prepare("select password from userprofiles where login =?");
             BoundStatement boundStatement = new BoundStatement(ps);
             ResultSet rs = session.execute(boundStatement.bind(username));
@@ -109,7 +109,7 @@ public class User {
      */
     public AccountBean getAccountInfo(AccountBean ac, String userName) throws AccountException {
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement ps = session.prepare("select * from userprofiles where login =?");
             ResultSet rs = null;
             BoundStatement selectUser = new BoundStatement(ps);
@@ -144,7 +144,7 @@ public class User {
      */
     public void setAccountInfo(AccountBean ac, String userName) throws AccountException {
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement firstName = session.prepare("update userprofiles set first_name =? where login =?");
             BoundStatement addAccountInfo = new BoundStatement(firstName);
             session.execute(addAccountInfo.bind(ac.getFirstName(), userName));//Add first Name
@@ -178,7 +178,7 @@ public class User {
     public java.util.List<String> getFriendList(String user) throws FriendException {
         java.util.List<String> friendSet = new java.util.LinkedList<>();
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement ps = session.prepare("select friends from userprofiles where login =?");
             ResultSet rs;
             BoundStatement friends = new BoundStatement(ps);
@@ -206,7 +206,7 @@ public class User {
      */
     public void addFriend(String user, String friend) throws FriendException{
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             java.util.List<String> friendList = getFriendList(user);
             java.util.LinkedList<String> newFriendList = new java.util.LinkedList<>();
             for (int i = 0; i < friendList.size(); i++) {
@@ -236,7 +236,7 @@ public class User {
     public java.util.LinkedList<String> getUsers(String userName) throws FriendException {
         java.util.LinkedList<String> userList = new java.util.LinkedList<>();
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             java.util.List<String> friendList = getFriendList(userName);//Get a list of user friends
             PreparedStatement ps = session.prepare("select * from userprofiles");
             ResultSet rs;

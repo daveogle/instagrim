@@ -58,7 +58,7 @@ public class PicModel {
      */
     public boolean hasPictures(String user) throws ImageException {
         try {
-            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            Session session = cluster.connect("instagrimdao");//Connect to Instagrim db
             PreparedStatement psGetPics = session.prepare("select * from Pics where user =?");
             ResultSet hasPictures;
             BoundStatement boundStatementPics = new BoundStatement(psGetPics);
@@ -90,7 +90,7 @@ public class PicModel {
             byte[] thumbb = picresize(picid.toString(), types[1], b);
             int thumblength = thumbb.length;
             ByteBuffer thumbbuf = ByteBuffer.wrap(thumbb);
-            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            Session session = cluster.connect("instagrimdao");//Connect to Instagrim db
             ByteBuffer buffer = ByteBuffer.wrap(b);
             PreparedStatement psInsertAvatar = session.prepare("insert into avatar (picid, image, thumb, user, imagelength, thumblength, type, name) values(?,?,?,?,?,?,?,?)");
             BoundStatement bsInsertAvatar = new BoundStatement(psInsertAvatar);
@@ -109,7 +109,6 @@ public class PicModel {
      * @param type
      * @param name
      * @param user
-     * @return
      * @throws uk.ac.dundee.computing.aec.instagrim.Exceptions.AccountException
      */
     public void updateAvatar(byte[] b, String type, String name, String user) throws AccountException {
@@ -120,7 +119,7 @@ public class PicModel {
             byte[] thumbb = picresize(picid.toString(), types[1], b);
             int thumblength = thumbb.length;
             ByteBuffer thumbbuf = ByteBuffer.wrap(thumbb);
-            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            Session session = cluster.connect("instagrimdao");//Connect to Instagrim db
             ByteBuffer buffer = ByteBuffer.wrap(b);
             PreparedStatement psUpdateAvatar = session.prepare("update avatar set image =?, thumb =?, imagelength =?, thumblength =?, type =?, name =? where user =?");
             BoundStatement bsInsertAvatar = new BoundStatement(psUpdateAvatar);
@@ -152,7 +151,7 @@ public class PicModel {
             byte[] processedb = picdecolour(picid.toString(), types[1], b);
             ByteBuffer processedbuf = ByteBuffer.wrap(processedb);
             int processedlength = processedb.length;
-            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            Session session = cluster.connect("instagrimdao");//Connect to Instagrim db
             ByteBuffer buffer = ByteBuffer.wrap(b);
             /*
              Insert the picture into the keyspaces pics & userpiclist
@@ -182,7 +181,7 @@ public class PicModel {
     public void insertComment(String user, java.util.UUID picid, String commentToAdd) throws ImageException {
         try {
             UUID commentId = UUID.randomUUID();
-            Session session = cluster.connect("instagrim");//Connect to Instagrim db
+            Session session = cluster.connect("instagrimdao");//Connect to Instagrim db
             Date dateAdded = new Date();
             PreparedStatement psInsertComment = session.prepare("insert into commentlist (commentid, picid, user, comment_added, comment) values (?, ?, ?, ?, ?)");
             BoundStatement bsInsertComment = new BoundStatement(psInsertComment);
@@ -203,7 +202,7 @@ public class PicModel {
      */
     public void deletePic(java.util.UUID picid, String user) throws ImageException {
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement getTimeStamp = session.prepare("select interaction_time from pics where picid =?");
             ResultSet rs;
             BoundStatement bsgetTimeStatement = new BoundStatement(getTimeStamp);
@@ -233,7 +232,7 @@ public class PicModel {
      */
     public void deleteComment(java.util.UUID picid, java.util.UUID commentId) throws ImageException {
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement psDeleteComment = session.prepare("DELETE FROM commentlist where commentid =? and  picid =?");
             BoundStatement bsDeleteComment = new BoundStatement(psDeleteComment);
             session.execute(bsDeleteComment.bind(commentId, picid));
@@ -251,7 +250,7 @@ public class PicModel {
      */
     public void deleteComments(java.util.UUID picid) throws ImageException {
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement getComments = session.prepare("select * from commentlist where picid =?");
             BoundStatement bsGetComments = new BoundStatement(getComments);
             ResultSet rs = session.execute(bsGetComments.bind(picid));
@@ -350,7 +349,7 @@ public class PicModel {
     public java.util.LinkedList<Pic> getPicsForUser(String User, boolean comments) throws ImageException {
         java.util.LinkedList<Pic> Pics = new java.util.LinkedList<>();
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             PreparedStatement picturePs = session.prepare("select picid from userpiclist where user =?");//Get the use pictures
             ResultSet pictures;
             BoundStatement boundStatementPics = new BoundStatement(picturePs);
@@ -421,7 +420,7 @@ public class PicModel {
         String type = null;
         int length = 0;
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             Convertors convertor = new Convertors();
             ResultSet rs;
             PreparedStatement ps = null;
@@ -471,7 +470,7 @@ public class PicModel {
      */
     public Pic getAvatar(String userName) {
         try {
-            Session session = cluster.connect("instagrim");
+            Session session = cluster.connect("instagrimdao");
             ByteBuffer bImage = null;
             String type = null;
             int length = 0;

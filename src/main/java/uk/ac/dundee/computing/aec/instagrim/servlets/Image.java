@@ -93,7 +93,7 @@ public class Image extends HttpServlet {
             } else {
                 String t = "Restriction Error";
                 String m = "Error you must be logged in to delete images";
-                Error(t, m, "Home", "/Instagrim", response, request);
+                Error(t, m, "Home", "/Instagrim-dao", response, request);
             }
         } catch (ImageException | ServletException | IOException e) {
             Error("Error :", e.getMessage(), "Home", "/", response, request);
@@ -115,7 +115,7 @@ public class Image extends HttpServlet {
         try {
             command = (Integer) CommandsMap.get(args[1]);
         } catch (Exception et) {
-            Error("Option not found", "This option has not been recognized", "Home", "/Instagrim", response, request);
+            Error("Option not found", "This option has not been recognized", "Home", "/Instagrim-dao", response, request);
             return;
         }
         switch (command) {
@@ -132,7 +132,7 @@ public class Image extends HttpServlet {
                 DisplayImageList(args[2], request, response, true);
                 break;
             default:
-                Error("Option not found", "This option has not been recognized", "Home", "/Instagrim", response, request);
+                Error("Option not found", "This option has not been recognized", "Home", "/Instagrim-dao", response, request);
         }
     }
 
@@ -197,7 +197,7 @@ public class Image extends HttpServlet {
         } catch (ImageException | IOException e) {
             String t = "Error";
             String m = "Error displaying image" + e.getMessage();
-            Error(t, m, "Home", "/Instagrim", response, request);
+            Error(t, m, "Home", "/Instagrim-dao", response, request);
         }
     }
 
@@ -248,10 +248,10 @@ public class Image extends HttpServlet {
                     rd.forward(request, response);
                     return;
                 }
-                Error(t, m, "Return", "/Instagrim/upload.jsp", response, request);
+                Error(t, m, "Return", "/Instagrim-dao/upload.jsp", response, request);
             }
         } catch (IOException | ServletException | ImageException e) {
-            Error("Error :", e.getMessage(), "Home", "/Instagrim", response, request);
+            Error("Error :", e.getMessage(), "Home", "/Instagrim-dao", response, request);
         }
     }
 

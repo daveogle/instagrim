@@ -30,27 +30,27 @@
                 if (lg == null || !lg.getlogedin()) {%>
             <h3>Please register as a new user or login </h3>
             <ul> 
-                <li><a href="/Instagrim">Home</a></li>
-                <li><a href="/Instagrim/Register">Register</a></li>
-                <li><a href="/Instagrim/Login">Login</a></li>  
+                <li><a href="/Instagrim-dao">Home</a></li>
+                <li><a href="/Instagrim-dao/Register">Register</a></li>
+                <li><a href="/Instagrim-dao/Login">Login</a></li>  
             </ul>
             <%
             } else {
                 UserName = lg.getUsername();%>
             </br>
             <ul>
-                <li><a href="/Instagrim">Home</a></li>
-                <li><a href="/Instagrim/upload.jsp">Upload</a></li>
-                <li><a href="/Instagrim/Friends">Friends</a></li>    
-                <li><a href="/Instagrim/Images/<%=UserName%>">My Images</a></li>
-                <li><a href="/Instagrim/DeleteList/<%=UserName%>">Delete Image</a></li>
-                <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
+                <li><a href="/Instagrim-dao">Home</a></li>
+                <li><a href="/Instagrim-dao/upload.jsp">Upload</a></li>
+                <li><a href="/Instagrim-dao/Friends">Friends</a></li>    
+                <li><a href="/Instagrim-dao/Images/<%=UserName%>">My Images</a></li>
+                <li><a href="/Instagrim-dao/DeleteList/<%=UserName%>">Delete Image</a></li>
+                <li><a href="/Instagrim-dao/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim-dao/Logout')">Logout</a></li>
             </ul>
         </nav>
         <h1>Accounts page</h1>
         <div class="details">
             </br>
-            <img id="avatar" title="Click to edit avatar" onclick="selectAvatar();" alt="User avatar picture" src="/Instagrim/Avatar"><br/>
+            <img id="avatar" title="Click to edit avatar" onclick="selectAvatar();" alt="User avatar picture" src="/Instagrim-dao/Avatar"><br/>
             <form id="avatarForm" method="post" action="Avatar" enctype="multipart/form-data">
                 <input type="file" name="UpFile" style="display: none;" onchange="updateAvatar();" id="upavatar">
                 <input type="submit" value="" style="display: none;">

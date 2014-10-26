@@ -147,7 +147,7 @@ public class Comment extends HttpServlet {
             m.setMessageTitle("Comment Added");
             m.setMessage("Your comment has been added");
             m.setPageRedirectName("Back");
-            m.setPageRedirect("/Instagrim/Comments/" + username);
+            m.setPageRedirect("/Instagrim-dao/Comments/" + username);
             request.setAttribute("message", m);
             RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
             dispatcher.forward(request, response);

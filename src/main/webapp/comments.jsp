@@ -13,7 +13,7 @@
     <% String user = (String) request.getAttribute("User");//Set the user that owns the pictures displayed%>
     <head>
         <title> Instagrim: <%=user%>'s Comments</title>
-        <link rel="stylesheet" type="text/css" href="/Instagrim/Styles.css" />
+        <link rel="stylesheet" type="text/css" href="/Instagrim-dao/Styles.css" />
         <script src="${pageContext.request.contextPath}/Scripts/javaScript.js" type="text/javascript"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     </head>
@@ -25,16 +25,16 @@
 
         <nav>
             <h3>Logged In As: <%=user%>!</h3>
-            <a href="/Instagrim/Account"><img id="avatar" alt="User avatar picture" src="/Instagrim/Avatar"></a><br/>
+            <a href="/Instagrim-dao/Account"><img id="avatar" alt="User avatar picture" src="/Instagrim-dao/Avatar"></a><br/>
             <ul>
-                <li><a href="/Instagrim"> Home </a></li>
-                <li class="nav"><a href="/Instagrim/Images/<%=user%>">Just Images</a></li>
-                <li><a href="/Instagrim/upload.jsp">Upload</a></li>
-                <li><a href="/Instagrim/Friends">Friends</a></li>    
-                <li><a href="/Instagrim/Images/<%=user%>">My Images</a></li>
-                <li><a href="/Instagrim/DeleteList/<%=user%>">Delete Image</a></li>
-                <li><a href="/Instagrim/Account">My Account</a></li>
-                <li><a href="/Instagrim/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim/Logout')">Logout</a></li>
+                <li><a href="/Instagrim-dao"> Home </a></li>
+                <li class="nav"><a href="/Instagrim-dao/Images/<%=user%>">Just Images</a></li>
+                <li><a href="/Instagrim-dao/upload.jsp">Upload</a></li>
+                <li><a href="/Instagrim-dao/Friends">Friends</a></li>    
+                <li><a href="/Instagrim-dao/Images/<%=user%>">My Images</a></li>
+                <li><a href="/Instagrim-dao/DeleteList/<%=user%>">Delete Image</a></li>
+                <li><a href="/Instagrim-dao/Account">My Account</a></li>
+                <li><a href="/Instagrim-dao/Logout/" id="lo" onclick="alertUser('Are you sure you want to logout?', 'lo', '/Instagrim-dao/Logout')">Logout</a></li>
             </ul>
         </nav>
 
@@ -59,9 +59,9 @@
         <div class="picture">
             <!-- DISPLAY IMAGES FOR VIEWING -->
             <!--IMAGE-->
-            <a href="/Instagrim/Image/<%=p.getSUUID()%>"><img alt="User instagrim picture" src="/Instagrim/Thumb/<%=p.getSUUID()%>"></a><br/>
+            <a href="/Instagrim-dao/Image/<%=p.getSUUID()%>"><img alt="User instagrim picture" src="/Instagrim-dao/Thumb/<%=p.getSUUID()%>"></a><br/>
             <!--Comments-->
-            <form action="/Instagrim/Comments" id="commentsForm<%=id%>" onsubmit="return validateComment('Text<%=id%>');" name ="comments" method="POST">
+            <form action="/Instagrim-dao/Comments" id="commentsForm<%=id%>" onsubmit="return validateComment('Text<%=id%>');" name ="comments" method="POST">
                 <h3>Comments:</h3><input type="button" id="button<%=id%>" value="+" onclick="onClick('picture<%=id%>');">
                 <div class="commentsAll" id="picture<%=id%>">
                     <%  Iterator<CommentBean> i;

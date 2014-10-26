@@ -127,7 +127,7 @@ function deletePic(id, user)
         $.ajax({
             type: "DELETE",
             async: false,
-            url: "/Instagrim/Image/" + user + "/" + id,
+            url: "/Instagrim-dao/Image/" + user + "/" + id,
             success: function (msg) {
                 alert("Image " + id + " Deleted: " + msg);
                 location.reload();
@@ -172,7 +172,7 @@ function deleteComment(user, picId, commentId)
         $.ajax({
             type: "DELETE",
             async: false,
-            url: "/Instagrim/Comments/" + user + "/" + picId + "/" + commentId,
+            url: "/Instagrim-dao/Comments/" + user + "/" + picId + "/" + commentId,
             success: function (msg) {
                 alert("Comment " + commentId + " Deleted: " + msg);
                 location.reload();

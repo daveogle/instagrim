@@ -69,7 +69,7 @@ public class Friends extends HttpServlet {
                 m.setMessageTitle("Error");
                 m.setMessage("There was an error accessing your friends: \n" + e.getMessage());
                 m.setPageRedirectName("Home");
-                m.setPageRedirect("/Instagrim");
+                m.setPageRedirect("/Instagrim-dao");
                 request.setAttribute("message", m);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                 dispatcher.forward(request, response);
@@ -79,7 +79,7 @@ public class Friends extends HttpServlet {
             m.setMessageTitle("Error");
             m.setMessage("You must be logged in to access your friends");
             m.setPageRedirectName("Home");
-            m.setPageRedirect("/Instagrim");
+            m.setPageRedirect("/Instagrim-dao");
             request.setAttribute("message", m);
             RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
             dispatcher.forward(request, response);
@@ -110,7 +110,7 @@ public class Friends extends HttpServlet {
                 m.setMessageTitle("Friend Added");
                 m.setMessage(friend + " was added as a friend");
                 m.setPageRedirectName("Friends");
-                m.setPageRedirect("/Instagrim/Friends");
+                m.setPageRedirect("/Instagrim-dao/Friends");
                 request.setAttribute("message", m);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                 dispatcher.forward(request, response);

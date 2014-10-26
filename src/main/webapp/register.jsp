@@ -20,9 +20,9 @@
         </header>
         <nav>
             <ul>                
-                <li><a href="/Instagrim">Home</a></li>
-                <li><a href="/Instagrim/Login">Login</a></li>
-                <li><a href="/Instagrim/Images/Sample">Sample Images</a></li>
+                <li><a href="/Instagrim-dao">Home</a></li>
+                <li><a href="/Instagrim-dao/Login">Login</a></li>
+                <li><a href="/Instagrim-dao/Images/Sample">Sample Images</a></li>
             </ul>
         </nav>
 

@@ -129,7 +129,7 @@ public class Account extends HttpServlet {
             m.setMessageTitle("Error :");
             m.setMessage("Error displaying image" + e.getMessage());
             m.setPageRedirectName("Home");
-            m.setPageRedirect("/Instagrim");
+            m.setPageRedirect("/Instagrim-dao");
             request.setAttribute("message", m);
             RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
             dispatcher.forward(request, response);
@@ -184,7 +184,7 @@ public class Account extends HttpServlet {
                         m.setMessage("You must be logged in to update your account");
                     }
                     m.setPageRedirectName("Accout");
-                    m.setPageRedirect("/Instagrim/Account");
+                    m.setPageRedirect("/Instagrim-dao/Account");
                     request.setAttribute("message", m);
                     RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                     dispatcher.forward(request, response);
@@ -240,7 +240,7 @@ public class Account extends HttpServlet {
                 m.setMessageTitle("Account Updated");
                 m.setMessage("Your account details have been successfully updated");
                 m.setPageRedirectName("Accout");
-                m.setPageRedirect("/Instagrim/Account");
+                m.setPageRedirect("/Instagrim-dao/Account");
                 request.setAttribute("message", m);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("message.jsp");
                 dispatcher.forward(request, response);

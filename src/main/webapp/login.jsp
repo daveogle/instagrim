@@ -32,9 +32,9 @@
         </header>
         <nav>
             <ul>               
-                <li><a href="/Instagrim">Home</a></li>
-                <li><a href="/Instagrim/Register">Register</a></li>
-                <li><a href="/Instagrim/Images/Sample">Sample Images</a></li>
+                <li><a href="/Instagrim-dao">Home</a></li>
+                <li><a href="/Instagrim-dao/Register">Register</a></li>
+                <li><a href="/Instagrim-dao/Images/Sample">Sample Images</a></li>
             </ul>
         </nav>
 
@@ -47,7 +47,7 @@
                         notAUser = (boolean) request.getAttribute("notAUser");
                     }
                     if (notAUser) {%>
-                    <p style="color:red"><b>That username does not exist, please try again or <a href="/Instagrim/Register">register</a> a new user... </b></p> 
+                    <p style="color:red"><b>That username does not exist, please try again or <a href="/Instagrim-dao/Register">register</a> a new user... </b></p> 
                 <%}%>
                 <ul>
                     <li>User Name <input type="text" name="username"></li>
